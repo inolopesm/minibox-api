@@ -7,10 +7,12 @@ import Knex from "knex";
 import { JWT } from "./utils/JWT";
 
 import { ProductRepository } from "./repositories/ProductRepository";
+import { TeamRepository } from "./repositories/TeamRepository";
 import { UserRepository } from "./repositories/UserRepository";
 
 import { ProductService } from "./services/ProductService";
 import { SessionService } from "./services/SessionService";
+import { TeamService } from "./services/TeamService";
 import { UserService } from "./services/UserService";
 
 import { ApiKeyMiddleware } from "./middlewares/ApiKeyMiddleware";
@@ -18,12 +20,14 @@ import { AccessTokenMiddleware } from "./middlewares/AccessTokenMiddleware";
 
 import { ProductController } from "./controllers/ProductController";
 import { SessionController } from "./controllers/SessionController";
+import { TeamController } from "./controllers/TeamController";
 import { UserController } from "./controllers/UserController";
 
 import { AccessTokenValidation } from "./validations/AccessTokenValidation";
 import { ApiKeyValidation } from "./validations/ApiKeyValidation";
 import { ProductValidation } from "./validations/ProductValidation";
 import { SessionValidation } from "./validations/SessionValidation";
+import { TeamValidation } from "./validations/TeamValidation";
 import { UserValidation } from "./validations/UserValidation";
 
 //
@@ -60,19 +64,22 @@ const knex = Knex({ client: "pg", connection: env.POSTGRES_URL });
 
 const jwt = new JWT(env.SECRET, TWELVE_HOURS_IN_SECONDS);
 
-const userRepository = new UserRepository(knex);
 const productRepository = new ProductRepository(knex);
+const teamRepository = new TeamRepository(knex);
+const userRepository = new UserRepository(knex);
 
-const sessionService = new SessionService(userRepository, jwt);
-const userService = new UserService(userRepository);
 const productService = new ProductService(productRepository);
+const sessionService = new SessionService(userRepository, jwt);
+const teamService = new TeamService(teamRepository);
+const userService = new UserService(userRepository);
 
 const apiKeyMiddleware = new ApiKeyMiddleware(env.API_KEY);
 const accessTokenMiddleware = new AccessTokenMiddleware(jwt);
 
-const sessionController = new SessionController(sessionService);
-const userController = new UserController(userService);
 const productController = new ProductController(productService);
+const sessionController = new SessionController(sessionService);
+const teamController = new TeamController(teamService);
+const userController = new UserController(userService);
 
 //
 
@@ -140,6 +147,51 @@ fastify.route({
   },
   preHandler: accessTokenMiddleware.use.bind(accessTokenMiddleware),
   handler: productController.update.bind(productController),
+});
+
+fastify.route({
+  method: "GET",
+  url: "/teams",
+  schema: {
+    headers: AccessTokenValidation.use,
+    querystring: TeamValidation.index,
+  },
+  preHandler: accessTokenMiddleware.use.bind(accessTokenMiddleware),
+  handler: teamController.index.bind(teamController),
+});
+
+fastify.route({
+  method: "POST",
+  url: "/teams",
+  schema: {
+    headers: AccessTokenValidation.use,
+    body: TeamValidation.store,
+  },
+  preHandler: accessTokenMiddleware.use.bind(accessTokenMiddleware),
+  handler: teamController.store.bind(teamController),
+});
+
+fastify.route({
+  method: "GET",
+  url: "/teams/:teamId",
+  schema: {
+    headers: AccessTokenValidation.use,
+    params: TeamValidation.show,
+  },
+  preHandler: accessTokenMiddleware.use.bind(accessTokenMiddleware),
+  handler: teamController.show.bind(teamController),
+});
+
+fastify.route({
+  method: "PUT",
+  url: "/teams/:teamId",
+  schema: {
+    headers: AccessTokenValidation.use,
+    params: TeamValidation.show,
+    body: TeamValidation.store,
+  },
+  preHandler: accessTokenMiddleware.use.bind(accessTokenMiddleware),
+  handler: teamController.update.bind(teamController),
 });
 
 //

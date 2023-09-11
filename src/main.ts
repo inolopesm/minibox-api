@@ -3,14 +3,34 @@ import AJV from "ajv";
 import Fastify from "fastify";
 import FastifyCors from "@fastify/cors";
 import Knex from "knex";
-import { SessionService } from "./application/services/SessionService";
-import { UserRepository } from "./application/repositories/UserRepository";
-import { JWT } from "./application/utils/JWT";
-import { UserService } from "./application/services/UserService";
-import { ProductService } from "./application/services/ProductService";
-import { ProductRepository } from "./application/repositories/ProductRepository";
+
+import { JWT } from "./utils/JWT";
+
+import { ProductRepository } from "./repositories/ProductRepository";
+import { UserRepository } from "./repositories/UserRepository";
+
+import { ProductService } from "./services/ProductService";
+import { SessionService } from "./services/SessionService";
+import { UserService } from "./services/UserService";
+
+import { ApiKeyMiddleware } from "./middlewares/ApiKeyMiddleware";
+import { AccessTokenMiddleware } from "./middlewares/AccessTokenMiddleware";
+
+import { ProductController } from "./controllers/ProductController";
+import { SessionController } from "./controllers/SessionController";
+import { UserController } from "./controllers/UserController";
+
+import { AccessTokenValidation } from "./validations/AccessTokenValidation";
+import { ApiKeyValidation } from "./validations/ApiKeyValidation";
+import { ProductValidation } from "./validations/ProductValidation";
+import { SessionValidation } from "./validations/SessionValidation";
+import { UserValidation } from "./validations/UserValidation";
+
+//
 
 const TWELVE_HOURS_IN_SECONDS = 12 * 60 * 60;
+
+//
 
 const env = {
   SECRET: process.env.SECRET as string,
@@ -34,267 +54,94 @@ const env = {
   }
 }
 
+//
+
 const knex = Knex({ client: "pg", connection: env.POSTGRES_URL });
+
+const jwt = new JWT(env.SECRET, TWELVE_HOURS_IN_SECONDS);
+
+const userRepository = new UserRepository(knex);
+const productRepository = new ProductRepository(knex);
+
+const sessionService = new SessionService(userRepository, jwt);
+const userService = new UserService(userRepository);
+const productService = new ProductService(productRepository);
+
+const apiKeyMiddleware = new ApiKeyMiddleware(env.API_KEY);
+const accessTokenMiddleware = new AccessTokenMiddleware(jwt);
+
+const sessionController = new SessionController(sessionService);
+const userController = new UserController(userService);
+const productController = new ProductController(productService);
+
+//
 
 const fastify = Fastify();
 
 fastify.register(FastifyCors);
 
+//
+
 fastify.route({
   method: "POST",
   url: "/sessions",
-  schema: {
-    body: {
-      type: "object",
-      required: ["username", "password"],
-      properties: {
-        username: { type: "string" },
-        password: { type: "string" },
-      },
-    },
-  },
-  handler: async (request, reply) => {
-    const { username, password } = request.body as {
-      username: string;
-      password: string;
-    };
-
-    const sessionService = new SessionService(
-      new UserRepository(knex),
-      new JWT(env.SECRET, TWELVE_HOURS_IN_SECONDS),
-    );
-
-    const result = await sessionService.create(username, password);
-
-    if (result instanceof Error) {
-      reply.status(400);
-      reply.send({ message: result.message });
-      return;
-    }
-
-    reply.status(200);
-    reply.send(result);
-  },
+  schema: { body: SessionValidation.store },
+  handler: sessionController.store.bind(sessionController),
 });
 
 fastify.route({
   method: "POST",
   url: "/users",
-  schema: {
-    headers: {
-      type: "object",
-      required: ["x-api-key"],
-      properties: {
-        "x-api-key": { type: "string" },
-      },
-    },
-    body: {
-      type: "object",
-      required: ["username", "password", "admin"],
-      properties: {
-        username: { type: "string" },
-        password: { type: "string" },
-        admin: { type: "boolean" },
-      },
-    },
-  },
-  preHandler: async (request, reply) => {
-    const apiKey = request.headers["x-api-key"] as string;
-
-    if (apiKey !== env.API_KEY) {
-      reply.status(400);
-      reply.send({ message: "Não autorizado" });
-    }
-  },
-  handler: async (request, reply) => {
-    const { username, password, admin } = request.body as {
-      secret: string;
-      username: string;
-      password: string;
-      admin: boolean;
-    };
-
-    const userService = new UserService(new UserRepository(knex));
-
-    const result = await userService.create({
-      username,
-      password,
-      admin,
-    });
-
-    if (result instanceof Error) {
-      reply.status(400);
-      reply.send({ message: result.message });
-      return;
-    }
-
-    reply.status(200);
-    reply.send(result);
-  },
+  schema: { headers: ApiKeyValidation.use, body: UserValidation.store },
+  preHandler: apiKeyMiddleware.use.bind(apiKeyMiddleware),
+  handler: userController.store.bind(userController),
 });
 
 fastify.route({
   method: "GET",
   url: "/products",
   schema: {
-    headers: {
-      type: "object",
-      required: ["x-access-token"],
-      properties: {
-        "x-access-token": { type: "string" },
-      },
-    },
-    query: {
-      type: "object",
-      properties: {
-        name: { type: "string" },
-      },
-    },
+    headers: AccessTokenValidation.use,
+    querystring: ProductValidation.index,
   },
-  preHandler: async (request, reply) => {
-    const accessToken = request.headers["x-access-token"] as string;
-    const jwt = new JWT(env.SECRET, TWELVE_HOURS_IN_SECONDS);
-    const payloadOrError = jwt.verify(accessToken);
-
-    if (payloadOrError instanceof Error) {
-      reply.status(400);
-      reply.send({ message: "Não autorizado" });
-    }
-  },
-  handler: async (request) => {
-    const { name } = request.query as { name?: string };
-    const productService = new ProductService(new ProductRepository(knex));
-    return await productService.find(name);
-  },
+  preHandler: accessTokenMiddleware.use.bind(accessTokenMiddleware),
+  handler: productController.index.bind(productController),
 });
 
 fastify.route({
   method: "POST",
   url: "/products",
   schema: {
-    headers: {
-      type: "object",
-      required: ["x-access-token"],
-      properties: {
-        "x-access-token": { type: "string" },
-      },
-    },
-    body: {
-      type: "object",
-      required: ["name", "value"],
-      properties: {
-        name: { type: "string" },
-        value: { type: "integer", minimum: 0 },
-      },
-    },
+    headers: AccessTokenValidation.use,
+    body: ProductValidation.store,
   },
-  preHandler: async (request, reply) => {
-    const accessToken = request.headers["x-access-token"] as string;
-    const jwt = new JWT(env.SECRET, TWELVE_HOURS_IN_SECONDS);
-    const payloadOrError = jwt.verify(accessToken);
-
-    if (payloadOrError instanceof Error) {
-      reply.status(400);
-      reply.send({ message: "Não autorizado" });
-    }
-  },
-  handler: async (request) => {
-    const { name, value } = request.body as { name: string; value: number };
-    const productService = new ProductService(new ProductRepository(knex));
-    await productService.create(name, value);
-  },
+  preHandler: accessTokenMiddleware.use.bind(accessTokenMiddleware),
+  handler: productController.store.bind(productController),
 });
 
 fastify.route({
   method: "GET",
   url: "/products/:productId",
   schema: {
-    headers: {
-      type: "object",
-      required: ["x-access-token"],
-      properties: {
-        "x-access-token": { type: "string" },
-      },
-    },
-    params: {
-      type: "object",
-      required: ["productId"],
-      properties: {
-        productId: { type: "integer", minimum: 1 },
-      },
-    },
+    headers: AccessTokenValidation.use,
+    params: ProductValidation.show,
   },
-  preHandler: async (request, reply) => {
-    const accessToken = request.headers["x-access-token"] as string;
-    const jwt = new JWT(env.SECRET, TWELVE_HOURS_IN_SECONDS);
-    const payloadOrError = jwt.verify(accessToken);
-
-    if (payloadOrError instanceof Error) {
-      reply.status(400);
-      reply.send({ message: "Não autorizado" });
-    }
-  },
-  handler: async (request, reply) => {
-    const { productId } = request.params as { productId: number };
-    const productService = new ProductService(new ProductRepository(knex));
-    const productOrError = await productService.findOne(productId);
-
-    if (productOrError instanceof Error) {
-      const error = productOrError;
-      reply.status(400);
-      reply.send({ message: error.message });
-    }
-
-    const product = productOrError;
-
-    reply.status(200);
-    reply.send(product);
-  },
+  preHandler: accessTokenMiddleware.use.bind(accessTokenMiddleware),
+  handler: productController.show.bind(productController),
 });
 
 fastify.route({
   method: "PUT",
   url: "/products/:productId",
   schema: {
-    headers: {
-      type: "object",
-      required: ["x-access-token"],
-      properties: {
-        "x-access-token": { type: "string" },
-      },
-    },
-    params: {
-      type: "object",
-      required: ["productId"],
-      properties: {
-        productId: { type: "integer", minimum: 1 },
-      },
-    },
-    body: {
-      type: "object",
-      required: ["name", "value"],
-      properties: {
-        name: { type: "string" },
-        value: { type: "integer", minimum: 0 },
-      },
-    },
+    headers: AccessTokenValidation.use,
+    params: ProductValidation.show,
+    body: ProductValidation.store,
   },
-  preHandler: async (request, reply) => {
-    const accessToken = request.headers["x-access-token"] as string;
-    const jwt = new JWT(env.SECRET, TWELVE_HOURS_IN_SECONDS);
-    const payloadOrError = jwt.verify(accessToken);
-
-    if (payloadOrError instanceof Error) {
-      reply.status(400);
-      reply.send({ message: "Não autorizado" });
-    }
-  },
-  handler: async (request) => {
-    const { productId } = request.params as { productId: number };
-    const { name, value } = request.body as { name: string; value: number };
-    const productService = new ProductService(new ProductRepository(knex));
-    await productService.update({ id: productId, name, value });
-  },
+  preHandler: accessTokenMiddleware.use.bind(accessTokenMiddleware),
+  handler: productController.update.bind(productController),
 });
+
+//
 
 fastify.listen({ port: 3333 });

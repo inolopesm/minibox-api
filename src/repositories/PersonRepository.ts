@@ -4,8 +4,10 @@ import type { Person } from "../entities/Person";
 export class PersonRepository {
   constructor(private readonly knex: Knex) {}
 
-  async find(): Promise<Person[]> {
-    return await this.knex<Person>("Person").orderBy("id");
+  async findILikeName(name: string): Promise<Person[]> {
+    return await this.knex<Person>("Person")
+      .whereILike("name", `%${name}%`)
+      .orderBy("id");
   }
 
   async findOneById(id: number): Promise<Person | null> {

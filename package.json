@@ -8,7 +8,7 @@
   "scripts": {
     "start": "node dist/main",
     "build": "rimraf dist && tsc",
-    "dev": "node -r ts-node/register -r dotenv/config src/main",
+    "dev": "node -r ts-node/register -r dotenv/config --watch src/main",
     "knex": "node -r dotenv/config node_modules/knex/bin/cli --knexfile knexfile.js"
   },
   "dependencies": {

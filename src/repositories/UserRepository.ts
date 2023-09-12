@@ -41,12 +41,10 @@ export class UserRepository {
   async create({
     username,
     password,
-    admin,
   }: {
     username: string;
     password: string;
-    admin: boolean;
   }): Promise<void> {
-    await this.knex<User>("User").insert({ username, password, admin });
+    await this.knex<User>("User").insert({ username, password });
   }
 }

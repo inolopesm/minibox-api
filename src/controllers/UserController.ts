@@ -5,18 +5,13 @@ export class UserController {
   constructor(private readonly userService: UserService) {}
 
   async store(request: FastifyRequest, reply: FastifyReply): Promise<void> {
-    const { username, password, admin } = request.body as {
+    const { username, password } = request.body as {
       secret: string;
       username: string;
       password: string;
-      admin: boolean;
     };
 
-    const result = await this.userService.create({
-      username,
-      password,
-      admin,
-    });
+    const result = await this.userService.create({ username, password });
 
     if (result instanceof Error) {
       await reply.status(400).send({ message: result.message });

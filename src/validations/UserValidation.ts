@@ -1,11 +1,10 @@
 export const UserValidation = {
   store: {
     type: "object",
-    required: ["username", "password", "admin"],
+    required: ["username", "password"],
     properties: {
       username: { type: "string" },
       password: { type: "string" },
-      admin: { type: "boolean" },
     },
   },
 };

@@ -6,11 +6,9 @@ export class UserService {
   async create({
     username,
     password,
-    admin,
   }: {
     username: string;
     password: string;
-    admin: boolean;
   }): Promise<Error | null> {
     const count = await this.userRepository.countByUsername(username);
 
@@ -18,7 +16,7 @@ export class UserService {
       return new Error("Usuário já existe");
     }
 
-    await this.userRepository.create({ username, password, admin });
+    await this.userRepository.create({ username, password });
 
     return null;
   }

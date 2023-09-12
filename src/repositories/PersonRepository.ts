@@ -4,6 +4,22 @@ import type { Person } from "../entities/Person";
 export class PersonRepository {
   constructor(private readonly knex: Knex) {}
 
+  async countById(id: number): Promise<number> {
+    const [row] = await this.knex<Person>("Person")
+      .where({ id })
+      .count({ count: "*" });
+
+    if (row === undefined) throw new Error("Unexpected undefined row");
+    if (row.count === undefined) throw new Error("Unexpected undefined count");
+
+    const count =
+      typeof row.count === "string" ? Number.parseInt(row.count) : row.count;
+
+    if (Number.isNaN(count)) throw new Error("Unexpected NaN count");
+
+    return count;
+  }
+
   async findILikeName(name: string): Promise<Person[]> {
     return await this.knex<Person>("Person")
       .whereILike("name", `%${name}%`)

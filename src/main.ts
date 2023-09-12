@@ -6,11 +6,13 @@ import Knex from "knex";
 
 import { JWT } from "./utils/JWT";
 
+import { InvoiceRepository } from "./repositories/InvoiceRepository";
 import { PersonRepository } from "./repositories/PersonRepository";
 import { ProductRepository } from "./repositories/ProductRepository";
 import { TeamRepository } from "./repositories/TeamRepository";
 import { UserRepository } from "./repositories/UserRepository";
 
+import { InvoiceService } from "./services/InvoiceService";
 import { PersonService } from "./services/PersonService";
 import { ProductService } from "./services/ProductService";
 import { SessionService } from "./services/SessionService";
@@ -20,6 +22,7 @@ import { UserService } from "./services/UserService";
 import { ApiKeyMiddleware } from "./middlewares/ApiKeyMiddleware";
 import { AccessTokenMiddleware } from "./middlewares/AccessTokenMiddleware";
 
+import { InvoiceController } from "./controllers/InvoiceController";
 import { PersonController } from "./controllers/PersonController";
 import { ProductController } from "./controllers/ProductController";
 import { SessionController } from "./controllers/SessionController";
@@ -28,6 +31,7 @@ import { UserController } from "./controllers/UserController";
 
 import { AccessTokenValidation } from "./validations/AccessTokenValidation";
 import { ApiKeyValidation } from "./validations/ApiKeyValidation";
+import { InvoiceValidation } from "./validations/InvoiceValidation";
 import { PersonValidation } from "./validations/PersonValidation";
 import { ProductValidation } from "./validations/ProductValidation";
 import { SessionValidation } from "./validations/SessionValidation";
@@ -68,11 +72,13 @@ const knex = Knex({ client: "pg", connection: env.POSTGRES_URL });
 
 const jwt = new JWT(env.SECRET, TWELVE_HOURS_IN_SECONDS);
 
+const invoiceRepository = new InvoiceRepository(knex);
 const personRepository = new PersonRepository(knex);
 const productRepository = new ProductRepository(knex);
 const teamRepository = new TeamRepository(knex);
 const userRepository = new UserRepository(knex);
 
+const invoiceService = new InvoiceService(invoiceRepository, personRepository);
 const personService = new PersonService(personRepository, teamRepository);
 const productService = new ProductService(productRepository);
 const sessionService = new SessionService(userRepository, jwt);
@@ -82,6 +88,7 @@ const userService = new UserService(userRepository);
 const apiKeyMiddleware = new ApiKeyMiddleware(env.API_KEY);
 const accessTokenMiddleware = new AccessTokenMiddleware(jwt);
 
+const invoiceController = new InvoiceController(invoiceService);
 const personController = new PersonController(personService);
 const productController = new ProductController(productService);
 const sessionController = new SessionController(sessionService);
@@ -244,6 +251,25 @@ fastify.route({
   },
   preHandler: accessTokenMiddleware.use.bind(accessTokenMiddleware),
   handler: personController.update.bind(personController),
+});
+
+fastify.route({
+  method: "GET",
+  url: "/invoices",
+  schema: { headers: AccessTokenValidation.use },
+  preHandler: accessTokenMiddleware.use.bind(accessTokenMiddleware),
+  handler: invoiceController.index.bind(invoiceController),
+});
+
+fastify.route({
+  method: "POST",
+  url: "/invoices",
+  schema: {
+    headers: AccessTokenValidation.use,
+    body: InvoiceValidation.store,
+  },
+  preHandler: accessTokenMiddleware.use.bind(accessTokenMiddleware),
+  handler: invoiceController.store.bind(invoiceController),
 });
 
 //

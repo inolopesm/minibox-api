@@ -1,4 +1,3 @@
-/** @param {import("knex").Knex} knex */
 exports.up = (knex) => knex.schema.createTable("Invoice", (table) => {
   table.increments("id");
   table.integer("personId").notNullable();

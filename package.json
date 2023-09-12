@@ -8,7 +8,7 @@
   "scripts": {
     "start": "node dist/main",
     "build": "rimraf dist && tsc",
-    "watch:app": "nodemon --exec \"node -r ts-node/register -r dotenv/config\" src/main",
+    "watch:app": "nodemon --watch src -e ts --exec \"node -r ts-node/register -r dotenv/config\" src/main",
     "watch:lint": "nodemon --watch src -e ts ./node_modules/eslint/bin/eslint.js -- \"src/**/*.ts\"",
     "dev": "concurrently \"npm:watch:*\"",
     "knex": "node -r dotenv/config node_modules/knex/bin/cli --knexfile knexfile.js"

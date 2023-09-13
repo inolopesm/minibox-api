@@ -26,6 +26,16 @@ export class PersonRepository {
       .orderBy("id");
   }
 
+  async findILikeNameAndByTeamId(
+    name: string,
+    teamId: number,
+  ): Promise<Person[]> {
+    return await this.knex<Person>("Person")
+      .whereILike("name", `%${name}%`)
+      .andWhere("teamId", teamId)
+      .orderBy("id");
+  }
+
   async findOneById(id: number): Promise<Person | null> {
     const row = await this.knex<Person>("Person").where({ id }).first();
     return row ?? null;

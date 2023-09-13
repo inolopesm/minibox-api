@@ -11,8 +11,12 @@ export class PersonService {
 
   async find(
     name: string | undefined = "",
+    teamId: number | undefined,
   ): Promise<Array<Person & { team: Team }>> {
-    const people = await this.personRepository.findILikeName(name);
+    const people =
+      teamId === undefined
+        ? await this.personRepository.findILikeName(name)
+        : await this.personRepository.findILikeNameAndByTeamId(name, teamId);
 
     const peopleWithTeam = new Array<Person & { team: Team }>();
 

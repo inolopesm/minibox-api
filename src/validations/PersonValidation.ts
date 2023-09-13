@@ -3,6 +3,7 @@ export const PersonValidation = {
     type: "object",
     properties: {
       name: { type: "string" },
+      teamId: { type: "integer", minimum: 1 },
     },
   },
   show: {

@@ -5,8 +5,12 @@ export class PersonController {
   constructor(private readonly personService: PersonService) {}
 
   async index(request: FastifyRequest, reply: FastifyReply): Promise<void> {
-    const { name } = request.query as { name?: string };
-    const people = await this.personService.find(name);
+    const { name, teamId } = request.query as {
+      name?: string;
+      teamId?: number;
+    };
+
+    const people = await this.personService.find(name, teamId);
     await reply.status(200).send(people);
   }
 

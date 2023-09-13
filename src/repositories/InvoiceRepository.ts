@@ -69,6 +69,7 @@ export class InvoiceRepository {
       JOIN "Person" p ON p.id = i."personId"
       JOIN "Team" t ON t.id = p."teamId"
       GROUP BY i.id, p.id, t.id
+      ORDER BY i.id, p.id, t.id
     `);
 
     return rows;

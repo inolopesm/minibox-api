@@ -1,4 +1,12 @@
 export const InvoiceValidation = {
+  index: {
+    type: "object",
+    properties: {
+      teamId: { type: "integer", minimum: 1 },
+      personId: { type: "integer", minimum: 1 },
+    },
+  },
+
   store: {
     type: "object",
     required: ["personId", "products"],

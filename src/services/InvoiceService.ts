@@ -13,8 +13,17 @@ export class InvoiceService {
     private readonly personRepository: PersonRepository,
   ) {}
 
-  async find(): ReturnType<InvoiceRepository["find"]> {
-    return await this.invoiceRepository.find();
+  async find(
+    teamId: number | undefined,
+    personId: number | undefined,
+  ): ReturnType<InvoiceRepository["find"]> {
+    return teamId !== undefined
+      ? personId !== undefined
+        ? await this.invoiceRepository.findByTeamIdAndPersonId(teamId, personId)
+        : await this.invoiceRepository.findByTeamId(teamId)
+      : personId !== undefined
+      ? await this.invoiceRepository.findByPersonId(personId)
+      : await this.invoiceRepository.find();
   }
 
   async create(params: CreateParams): Promise<Error | null> {

@@ -256,7 +256,10 @@ fastify.route({
 fastify.route({
   method: "GET",
   url: "/invoices",
-  schema: { headers: AccessTokenValidation.use },
+  schema: {
+    headers: AccessTokenValidation.use,
+    querystring: InvoiceValidation.index,
+  },
   preHandler: accessTokenMiddleware.use.bind(accessTokenMiddleware),
   handler: invoiceController.index.bind(invoiceController),
 });

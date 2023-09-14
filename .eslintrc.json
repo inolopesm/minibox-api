@@ -2,5 +2,11 @@
   "env": { "es2022": true, "node": true },
   "extends": ["standard-with-typescript", "prettier"],
   "parserOptions": { "ecmaVersion": 2022, "sourceType": "module" },
-  "rules": {}
+  "settings": { "import/resolver": { "typescript": true, "node": true } },
+  "rules": {
+    "import/order": ["error", {
+      "groups": ["builtin", "external", "internal", "parent", "sibling", "index", "object", "type"],
+      "alphabetize": { "order": "asc" }
+    }]
+  }
 }

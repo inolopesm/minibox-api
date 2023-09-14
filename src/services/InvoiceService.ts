@@ -1,6 +1,6 @@
-import type { InvoiceRepository } from "../repositories/InvoiceRepository";
 import type { Invoice } from "../entities/Invoice";
 import type { InvoiceProduct } from "../entities/InvoiceProduct";
+import type { InvoiceRepository } from "../repositories/InvoiceRepository";
 import type { PersonRepository } from "../repositories/PersonRepository";
 
 type CreateParams = Omit<Invoice, "id" | "createdAt" | "paidAt"> & {

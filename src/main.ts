@@ -1,10 +1,18 @@
 /* eslint-disable @typescript-eslint/no-floating-promises, @typescript-eslint/no-misused-promises */
+import FastifyCors from "@fastify/cors";
 import AJV from "ajv";
 import Fastify from "fastify";
-import FastifyCors from "@fastify/cors";
 import Knex from "knex";
 
-import { JWT } from "./utils/JWT";
+import { InvoiceController } from "./controllers/InvoiceController";
+import { PersonController } from "./controllers/PersonController";
+import { ProductController } from "./controllers/ProductController";
+import { SessionController } from "./controllers/SessionController";
+import { TeamController } from "./controllers/TeamController";
+import { UserController } from "./controllers/UserController";
+
+import { AccessTokenMiddleware } from "./middlewares/AccessTokenMiddleware";
+import { ApiKeyMiddleware } from "./middlewares/ApiKeyMiddleware";
 
 import { InvoiceRepository } from "./repositories/InvoiceRepository";
 import { PersonRepository } from "./repositories/PersonRepository";
@@ -19,15 +27,7 @@ import { SessionService } from "./services/SessionService";
 import { TeamService } from "./services/TeamService";
 import { UserService } from "./services/UserService";
 
-import { ApiKeyMiddleware } from "./middlewares/ApiKeyMiddleware";
-import { AccessTokenMiddleware } from "./middlewares/AccessTokenMiddleware";
-
-import { InvoiceController } from "./controllers/InvoiceController";
-import { PersonController } from "./controllers/PersonController";
-import { ProductController } from "./controllers/ProductController";
-import { SessionController } from "./controllers/SessionController";
-import { TeamController } from "./controllers/TeamController";
-import { UserController } from "./controllers/UserController";
+import { JWT } from "./utils/JWT";
 
 import { AccessTokenValidation } from "./validations/AccessTokenValidation";
 import { ApiKeyValidation } from "./validations/ApiKeyValidation";

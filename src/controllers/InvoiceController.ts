@@ -1,5 +1,5 @@
-import type { FastifyReply, FastifyRequest } from "fastify";
 import type { InvoiceService } from "../services/InvoiceService";
+import type { FastifyReply, FastifyRequest } from "fastify";
 
 export class InvoiceController {
   constructor(private readonly invoiceService: InvoiceService) {}

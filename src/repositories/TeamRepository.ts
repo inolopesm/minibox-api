@@ -1,5 +1,5 @@
-import type { Knex } from "knex";
 import type { Team } from "../entities/Team";
+import type { Knex } from "knex";
 
 export class TeamRepository {
   constructor(private readonly knex: Knex) {}

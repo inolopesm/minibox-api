@@ -1,5 +1,5 @@
-import type { FastifyReply, FastifyRequest } from "fastify";
 import type { TeamService } from "../services/TeamService";
+import type { FastifyReply, FastifyRequest } from "fastify";
 
 export class TeamController {
   constructor(private readonly teamService: TeamService) {}

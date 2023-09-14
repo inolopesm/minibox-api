@@ -1,8 +1,8 @@
-import type { Knex } from "knex";
 import type { Invoice } from "../entities/Invoice";
 import type { InvoiceProduct } from "../entities/InvoiceProduct";
 import type { Person } from "../entities/Person";
 import type { Team } from "../entities/Team";
+import type { Knex } from "knex";
 
 interface FindInvoiceDTO {
   id: Invoice["id"];

@@ -1,5 +1,5 @@
-import type { FastifyReply, FastifyRequest } from "fastify";
 import type { JWT } from "../utils/JWT";
+import type { FastifyReply, FastifyRequest } from "fastify";
 
 export class AccessTokenMiddleware {
   constructor(private readonly jwt: JWT) {}

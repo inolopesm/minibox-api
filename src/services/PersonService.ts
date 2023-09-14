@@ -13,24 +13,9 @@ export class PersonService {
     name: string | undefined = "",
     teamId: number | undefined,
   ): Promise<Array<Person & { team: Team }>> {
-    const people =
-      teamId === undefined
-        ? await this.personRepository.findILikeName(name)
-        : await this.personRepository.findILikeNameAndByTeamId(name, teamId);
-
-    const peopleWithTeam = new Array<Person & { team: Team }>();
-
-    for (const person of people) {
-      const team = await this.teamRepository.findOneById(person.teamId);
-
-      if (team === null) {
-        throw new Error(`Team (${person.teamId})`);
-      }
-
-      peopleWithTeam.push({ ...person, team });
-    }
-
-    return peopleWithTeam;
+    return teamId === undefined
+      ? await this.personRepository.findILikeName(name)
+      : await this.personRepository.findILikeNameAndByTeamId(name, teamId);
   }
 
   async findOne(id: number): Promise<Person | Error> {

@@ -1,5 +1,6 @@
 import type { Knex } from "knex";
 import type { Person } from "../entities/Person";
+import type { Team } from "../entities/Team";
 
 export class PersonRepository {
   constructor(private readonly knex: Knex) {}
@@ -20,20 +21,24 @@ export class PersonRepository {
     return count;
   }
 
-  async findILikeName(name: string): Promise<Person[]> {
-    return await this.knex<Person>("Person")
-      .whereILike("name", `%${name}%`)
-      .orderBy("id");
+  async findILikeName(name: string): Promise<Array<Person & { team: Team }>> {
+    return await this.knex<Person>({ p: "Person" })
+      .select("p.*", this.knex.raw("ROW_TO_JSON(t.*)"))
+      .join({ t: "Team" }, "t.id", "p.teamId")
+      .whereILike("p.name", `%${name}%`)
+      .orderBy(["p.id", "t.id"]);
   }
 
   async findILikeNameAndByTeamId(
     name: string,
     teamId: number,
-  ): Promise<Person[]> {
-    return await this.knex<Person>("Person")
-      .whereILike("name", `%${name}%`)
+  ): Promise<Array<Person & { team: Team }>> {
+    return await this.knex<Person>({ p: "Person" })
+      .select("p.*", this.knex.raw("ROW_TO_JSON(t.*)"))
+      .join({ t: "Team" }, "t.id", "p.teamId")
+      .whereILike("p.name", `%${name}%`)
       .andWhere("teamId", teamId)
-      .orderBy("id");
+      .orderBy(["p.id", "t.id"]);
   }
 
   async findOneById(id: number): Promise<Person | null> {

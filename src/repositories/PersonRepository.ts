@@ -23,7 +23,7 @@ export class PersonRepository {
 
   async findILikeName(name: string): Promise<Array<Person & { team: Team }>> {
     return await this.knex<Person>({ p: "Person" })
-      .select("p.*", this.knex.raw("ROW_TO_JSON(t.*)"))
+      .select("p.*", this.knex.raw("ROW_TO_JSON(t.*) team"))
       .join({ t: "Team" }, "t.id", "p.teamId")
       .whereILike("p.name", `%${name}%`)
       .orderBy(["p.id", "t.id"]);
@@ -34,7 +34,7 @@ export class PersonRepository {
     teamId: number,
   ): Promise<Array<Person & { team: Team }>> {
     return await this.knex<Person>({ p: "Person" })
-      .select("p.*", this.knex.raw("ROW_TO_JSON(t.*)"))
+      .select("p.*", this.knex.raw("ROW_TO_JSON(t.*) team"))
       .join({ t: "Team" }, "t.id", "p.teamId")
       .whereILike("p.name", `%${name}%`)
       .andWhere("teamId", teamId)

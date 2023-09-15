@@ -14,6 +14,20 @@ export class InvoiceController {
     await reply.status(200).send(invoices);
   }
 
+  async show(request: FastifyRequest, reply: FastifyReply): Promise<void> {
+    const { invoiceId } = request.params as { invoiceId: number };
+    const invoiceOrError = await this.invoiceService.findOne(invoiceId);
+
+    if (invoiceOrError instanceof Error) {
+      const error = invoiceOrError;
+      await reply.status(400).send({ message: error.message });
+      return;
+    }
+
+    const invoice = invoiceOrError;
+    await reply.status(200).send(invoice);
+  }
+
   async store(request: FastifyRequest, reply: FastifyReply): Promise<void> {
     const { personId, products } = request.body as {
       personId: number;

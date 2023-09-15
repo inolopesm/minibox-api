@@ -265,6 +265,17 @@ fastify.route({
 });
 
 fastify.route({
+  method: "GET",
+  url: "/invoices/:invoiceId",
+  schema: {
+    headers: AccessTokenValidation.use,
+    params: InvoiceValidation.show,
+  },
+  preHandler: accessTokenMiddleware.use.bind(accessTokenMiddleware),
+  handler: invoiceController.show.bind(invoiceController),
+});
+
+fastify.route({
   method: "POST",
   url: "/invoices",
   schema: {

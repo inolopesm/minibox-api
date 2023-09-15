@@ -4,7 +4,7 @@ import type { Person } from "../entities/Person";
 import type { Team } from "../entities/Team";
 import type { Knex } from "knex";
 
-type InvoiceDTO = Invoice & {
+export type InvoiceDTO = Invoice & {
   products: InvoiceProduct[];
   person: Person & { team: Team };
 };
@@ -16,9 +16,9 @@ type CreateParams = Omit<Invoice, "id" | "paidAt"> & {
 export class InvoiceRepository {
   constructor(private readonly knex: Knex) {}
 
-  async find(): Promise<InvoiceDTO[]> {
+  get query(): Knex.QueryBuilder {
     // prettier-ignore
-    return await this.knex<Invoice>({ i: "Invoice" })
+    return this.knex<Invoice>({ i: "Invoice" })
       .select("i.*")
       .select(this.knex.raw("JSON_AGG(ROW_TO_JSON(ip.*)) products"))
       .select(this.knex.raw("JSONB_INSERT(ROW_TO_JSON(p.*)::jsonb, '{team}', ROW_TO_JSON(t.*)::jsonb) person"))
@@ -29,50 +29,30 @@ export class InvoiceRepository {
       .orderBy(["i.id", "p.id", "t.id"])
   }
 
+  async find(): Promise<InvoiceDTO[]> {
+    return await this.query;
+  }
+
   async findByTeamId(teamId: number): Promise<InvoiceDTO[]> {
-    // prettier-ignore
-    return await this.knex<Invoice>({ i: "Invoice" })
-      .select("i.*")
-      .select(this.knex.raw("JSON_AGG(ROW_TO_JSON(ip.*)) products"))
-      .select(this.knex.raw("JSONB_INSERT(ROW_TO_JSON(p.*)::jsonb, '{team}', ROW_TO_JSON(t.*)::jsonb) person"))
-      .join<InvoiceProduct>({ ip: "InvoiceProduct" }, "ip.invoiceId", "i.id")
-      .join<Person>({ p: "Person" }, "p.id", "i.personId")
-      .join<Team>({ t: "Team" }, "t.id", "p.teamId")
-      .where("p.teamId", teamId)
-      .groupBy("i.id", "p.id", "t.id")
-      .orderBy(["i.id", "p.id", "t.id"]);
+    return await this.query.where("p.teamId", teamId);
   }
 
   async findByPersonId(personId: number): Promise<InvoiceDTO[]> {
-    // prettier-ignore
-    return await this.knex<Invoice>({ i: "Invoice" })
-      .select("i.*")
-      .select(this.knex.raw("JSON_AGG(ROW_TO_JSON(ip.*)) products"))
-      .select(this.knex.raw("JSONB_INSERT(ROW_TO_JSON(p.*)::jsonb, '{team}', ROW_TO_JSON(t.*)::jsonb) person"))
-      .join<InvoiceProduct>({ ip: "InvoiceProduct" }, "ip.invoiceId", "i.id")
-      .join<Person>({ p: "Person" }, "p.id", "i.personId")
-      .join<Team>({ t: "Team" }, "t.id", "p.teamId")
-      .where("i.personId", personId)
-      .groupBy("i.id", "p.id", "t.id")
-      .orderBy(["i.id", "p.id", "t.id"]);
+    return await this.query.where("i.personId", personId);
   }
 
   async findByTeamIdAndPersonId(
     teamId: number,
     personId: number,
   ): Promise<InvoiceDTO[]> {
-    // prettier-ignore
-    return await this.knex<Invoice>({ i: "Invoice" })
-      .select("i.*")
-      .select(this.knex.raw("JSON_AGG(ROW_TO_JSON(ip.*)) products"))
-      .select(this.knex.raw("JSONB_INSERT(ROW_TO_JSON(p.*)::jsonb, '{team}', ROW_TO_JSON(t.*)::jsonb) person"))
-      .join<InvoiceProduct>({ ip: "InvoiceProduct" }, "ip.invoiceId", "i.id")
-      .join<Person>({ p: "Person" }, "p.id", "i.personId")
-      .join<Team>({ t: "Team" }, "t.id", "p.teamId")
+    return await this.query
       .where("p.teamId", teamId)
-      .andWhere("i.personId", personId)
-      .groupBy("i.id", "p.id", "t.id")
-      .orderBy(["i.id", "p.id", "t.id"]);
+      .andWhere("i.personId", personId);
+  }
+
+  async findOneById(id: number): Promise<InvoiceDTO | null> {
+    const row = await this.query.where("i.id", id).first();
+    return row ?? null;
   }
 
   async create(params: CreateParams): Promise<void> {

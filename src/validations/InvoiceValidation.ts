@@ -6,7 +6,13 @@ export const InvoiceValidation = {
       personId: { type: "integer", minimum: 1 },
     },
   },
-
+  show: {
+    type: "object",
+    required: ["invoiceId"],
+    properties: {
+      invoiceId: { type: "integer", minimum: 1 },
+    },
+  },
   store: {
     type: "object",
     required: ["personId", "products"],

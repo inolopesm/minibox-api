@@ -1,9 +1,11 @@
 import type { Invoice } from "../entities/Invoice";
 import type { InvoiceProduct } from "../entities/InvoiceProduct";
+
 import type {
   InvoiceDTO,
   InvoiceRepository,
 } from "../repositories/InvoiceRepository";
+
 import type { PersonRepository } from "../repositories/PersonRepository";
 
 type CreateParams = Omit<Invoice, "id" | "createdAt" | "paidAt"> & {
@@ -16,17 +18,43 @@ export class InvoiceService {
     private readonly personRepository: PersonRepository,
   ) {}
 
-  async find(
-    teamId: number | undefined,
-    personId: number | undefined,
-  ): Promise<InvoiceDTO[]> {
-    return teamId !== undefined
-      ? personId !== undefined
-        ? await this.invoiceRepository.findByTeamIdAndPersonId(teamId, personId)
-        : await this.invoiceRepository.findByTeamId(teamId)
-      : personId !== undefined
-      ? await this.invoiceRepository.findByPersonId(personId)
-      : await this.invoiceRepository.find();
+  async find({
+    teamId,
+    personId,
+    paid,
+  }: {
+    teamId: number | undefined;
+    personId: number | undefined;
+    paid: boolean | undefined;
+  }): Promise<InvoiceDTO[]> {
+    const paidAt = paid === false ? null : paid;
+
+    // prettier-ignore
+    if (teamId !== undefined && personId !== undefined && paidAt !== undefined)
+      return await this.invoiceRepository.findByTeamIdAndPersonIdAndPaidAt({ teamId, personId, paidAt })
+
+    // prettier-ignore
+    if (teamId !== undefined && personId !== undefined)
+      return await this.invoiceRepository.findByTeamIdAndPersonId(teamId, personId)
+
+    // prettier-ignore
+    if (teamId !== undefined && paidAt !== undefined)
+      return await this.invoiceRepository.findByTeamIdAndPaidAt(teamId, paidAt);
+
+    if (teamId !== undefined)
+      return await this.invoiceRepository.findByTeamId(teamId);
+
+    // prettier-ignore
+    if (personId !== undefined && paidAt !== undefined)
+      return await this.invoiceRepository.findByPersonIdAndPaidAt(personId, paidAt);
+
+    if (personId !== undefined)
+      return await this.invoiceRepository.findByPersonId(personId);
+
+    if (paidAt !== undefined)
+      return await this.invoiceRepository.findByPaidAt(paidAt);
+
+    return await this.invoiceRepository.find();
   }
 
   async findOne(id: number): Promise<InvoiceDTO | Error> {

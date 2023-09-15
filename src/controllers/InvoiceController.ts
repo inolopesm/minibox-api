@@ -5,12 +5,13 @@ export class InvoiceController {
   constructor(private readonly invoiceService: InvoiceService) {}
 
   async index(request: FastifyRequest, reply: FastifyReply): Promise<void> {
-    const { teamId, personId } = request.query as {
+    const { teamId, personId, paid } = request.query as {
       teamId?: number;
       personId?: number;
+      paid?: boolean;
     };
 
-    const invoices = await this.invoiceService.find(teamId, personId);
+    const invoices = await this.invoiceService.find({ teamId, personId, paid });
     await reply.status(200).send(invoices);
   }
 

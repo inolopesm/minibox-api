@@ -4,6 +4,7 @@ export const InvoiceValidation = {
     properties: {
       teamId: { type: "integer", minimum: 1 },
       personId: { type: "integer", minimum: 1 },
+      paid: { type: "boolean" },
     },
   },
   show: {

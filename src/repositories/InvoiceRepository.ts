@@ -16,7 +16,7 @@ type CreateParams = Omit<Invoice, "id" | "paidAt"> & {
 export class InvoiceRepository {
   constructor(private readonly knex: Knex) {}
 
-  get query(): Knex.QueryBuilder {
+  private get query(): Knex.QueryBuilder {
     // prettier-ignore
     return this.knex<Invoice>({ i: "Invoice" })
       .select("i.*")
@@ -41,6 +41,12 @@ export class InvoiceRepository {
     return await this.query.where("i.personId", personId);
   }
 
+  async findByPaidAt(paidAt: number | null | true): Promise<InvoiceDTO[]> {
+    return paidAt === true
+      ? await this.query.whereNotNull("i.paidAt")
+      : await this.query.where("i.paidAt", paidAt);
+  }
+
   async findByTeamIdAndPersonId(
     teamId: number,
     personId: number,
@@ -48,6 +54,49 @@ export class InvoiceRepository {
     return await this.query
       .where("p.teamId", teamId)
       .andWhere("i.personId", personId);
+  }
+
+  async findByTeamIdAndPersonIdAndPaidAt({
+    teamId,
+    personId,
+    paidAt,
+  }: {
+    teamId: number;
+    personId: number;
+    paidAt: number | null | true;
+  }): Promise<InvoiceDTO[]> {
+    const query =
+      paidAt === true
+        ? this.query.whereNotNull("i.paidAt")
+        : this.query.where("i.paidAt", paidAt);
+
+    return await query
+      .andWhere("p.teamId", teamId)
+      .andWhere("i.personId", personId);
+  }
+
+  async findByTeamIdAndPaidAt(
+    teamId: number,
+    paidAt: number | null | true,
+  ): Promise<InvoiceDTO[]> {
+    const query =
+      paidAt === true
+        ? this.query.whereNotNull("i.paidAt")
+        : this.query.where("i.paidAt", paidAt);
+
+    return await query.andWhere("p.teamId", teamId);
+  }
+
+  async findByPersonIdAndPaidAt(
+    personId: number,
+    paidAt: number | null | true,
+  ): Promise<InvoiceDTO[]> {
+    const query =
+      paidAt === true
+        ? this.query.whereNotNull("i.paidAt")
+        : this.query.where("i.paidAt", paidAt);
+
+    return await query.andWhere("i.personId", personId);
   }
 
   async findOneById(id: number): Promise<InvoiceDTO | null> {

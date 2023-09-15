@@ -72,4 +72,8 @@ export class InvoiceRepository {
       );
     });
   }
+
+  async updatePaidAtById(paidAt: number | null, id: number): Promise<void> {
+    await this.knex<Invoice>("Invoice").update({ paidAt }).where({ id });
+  }
 }

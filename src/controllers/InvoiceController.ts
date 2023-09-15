@@ -40,4 +40,13 @@ export class InvoiceController {
       await reply.status(400).send({ message: error.message });
     }
   }
+
+  async pay(request: FastifyRequest, reply: FastifyReply): Promise<void> {
+    const { invoiceId } = request.params as { invoiceId: number };
+    const error = await this.invoiceService.pay(invoiceId);
+
+    if (error instanceof Error) {
+      await reply.status(400).send({ message: error.message });
+    }
+  }
 }

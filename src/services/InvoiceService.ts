@@ -54,4 +54,20 @@ export class InvoiceService {
 
     return null;
   }
+
+  async pay(id: number): Promise<Error | null> {
+    const invoice = await this.invoiceRepository.findOneById(id);
+
+    if (invoice === null) {
+      return new Error("Fatura não encontrada");
+    }
+
+    if (invoice.paidAt !== null) {
+      return new Error("Fatura já marcada como paga");
+    }
+
+    await this.invoiceRepository.updatePaidAtById(Date.now(), id);
+
+    return null;
+  }
 }

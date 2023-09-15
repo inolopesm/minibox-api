@@ -286,6 +286,16 @@ fastify.route({
   handler: invoiceController.store.bind(invoiceController),
 });
 
+fastify.route({
+  method: "PUT",
+  url: "/invoices/:invoiceId/pay",
+  schema: {
+    headers: AccessTokenValidation.use,
+    params: InvoiceValidation.show,
+  },
+  preHandler: accessTokenMiddleware.use.bind(accessTokenMiddleware),
+  handler: invoiceController.pay.bind(invoiceController),
+});
 //
 
 fastify.listen({ port: 3333, host: "0.0.0.0" });

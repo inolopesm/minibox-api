@@ -48,6 +48,7 @@ const env = {
   SECRET: process.env.SECRET as string,
   POSTGRES_URL: process.env.POSTGRES_URL as string,
   API_KEY: process.env.API_KEY as string,
+  PORT: process.env.PORT !== undefined ? Number(process.env.PORT) : 3333,
 };
 
 {
@@ -58,6 +59,7 @@ const env = {
       SECRET: { type: "string" },
       POSTGRES_URL: { type: "string" },
       API_KEY: { type: "string" },
+      PORT: { type: "integer", minimum: 0, maximum: 65535 },
     },
   };
 
@@ -298,4 +300,4 @@ fastify.route({
 });
 //
 
-fastify.listen({ port: 3333, host: "0.0.0.0" });
+fastify.listen({ port: env.PORT, host: "0.0.0.0" });

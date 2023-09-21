@@ -40,10 +40,6 @@ import { UserValidation } from "./validations/UserValidation";
 
 //
 
-const TWELVE_HOURS_IN_SECONDS = 12 * 60 * 60;
-
-//
-
 const env = {
   SECRET: process.env.SECRET as string,
   POSTGRES_URL: process.env.POSTGRES_URL as string,
@@ -72,7 +68,7 @@ const env = {
 
 const knex = Knex({ client: "pg", connection: env.POSTGRES_URL });
 
-const jwt = new JWT(env.SECRET, TWELVE_HOURS_IN_SECONDS);
+const jwt = new JWT(env.SECRET);
 
 const invoiceRepository = new InvoiceRepository(knex);
 const personRepository = new PersonRepository(knex);

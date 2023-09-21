@@ -2,19 +2,14 @@ import * as crypto from "node:crypto";
 import { SafeJSON } from "./SafeJSON";
 
 export class JWT {
-  constructor(
-    private readonly secret: string,
-    private readonly expiresIn: number,
-  ) {}
+  constructor(private readonly secret: string) {}
 
   sign(payload: Record<string, unknown>): string {
     const header = { alg: "HS256", typ: "JWT" };
     const stringifiedHeader = JSON.stringify(header);
     const headerBase64 = Buffer.from(stringifiedHeader).toString("base64url");
 
-    const exp = Math.floor(Date.now() / 1000) + this.expiresIn;
-
-    const stringifiedPayload = JSON.stringify({ ...payload, exp });
+    const stringifiedPayload = JSON.stringify(payload);
     const payloadBase64 = Buffer.from(stringifiedPayload).toString("base64url");
 
     const data = `${headerBase64}.${payloadBase64}`;

@@ -1,5 +1,5 @@
 {
-  "env": { "es2022": true, "node": true },
+  "env": { "es2022": true, "node": true, "jest": true },
   "extends": ["standard-with-typescript", "prettier"],
   "parserOptions": { "ecmaVersion": 2022, "sourceType": "module" },
   "settings": { "import/resolver": { "typescript": true, "node": true } },

@@ -12,7 +12,7 @@ export class TeamService {
     const team = await this.teamRepository.findOneById(id);
 
     if (team === null) {
-      return new Error("Equipe não encontrado");
+      return new Error("Equipe não encontrada");
     }
 
     return team;

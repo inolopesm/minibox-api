@@ -22,7 +22,7 @@ export class PersonService {
     const person = await this.personRepository.findOneById(id);
 
     if (person === null) {
-      return new Error("Produto não encontrado");
+      return new Error("Pessoa não encontrada");
     }
 
     return person;

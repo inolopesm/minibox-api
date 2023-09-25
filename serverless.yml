@@ -6,12 +6,17 @@ provider:
   runtime: nodejs18.x
 
 plugins:
+  - serverless-plugin-typescript
   - serverless-offline
   - serverless-dotenv-plugin
 
+custom:
+  serverlessPluginTypescript:
+    tsConfigFileLocation: ./tsconfig.build.json
+
 functions:
   api:
-    handler: index.handler
+    handler: src/main.handler
     events:
       - httpApi:
           path: /

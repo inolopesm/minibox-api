@@ -4,6 +4,7 @@
     "deploy": "serverless deploy"
   },
   "devDependencies": {
+    "serverless-dotenv-plugin": "^6.0.0",
     "serverless-offline": "^13.1.0"
   }
 }

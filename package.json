@@ -1,0 +1,9 @@
+{
+  "scripts": {
+    "start": "serverless offline",
+    "deploy": "serverless deploy"
+  },
+  "devDependencies": {
+    "serverless-offline": "^13.1.0"
+  }
+}

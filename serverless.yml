@@ -5,6 +5,9 @@ provider:
   name: aws
   runtime: nodejs18.x
 
+plugins:
+  - serverless-offline
+
 functions:
   api:
     handler: index.handler

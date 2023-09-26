@@ -11,7 +11,7 @@ import {
 } from "./application/controllers/users/create-user-controller";
 
 import { JWT } from "./application/utils/jwt";
-import { AJVAdapter } from "./infrastructure/ajv-adapter";
+import { AjvValidationAdapter } from "./infrastructure/ajv-validation-adapter";
 import { UserKnexRepository } from "./infrastructure/user-knex-repository";
 import type { Controller, Request } from "./application/protocols/http";
 import type { APIGatewayProxyHandlerV2 } from "aws-lambda";
@@ -76,7 +76,7 @@ export const handler: APIGatewayProxyHandlerV2 = async (event) => {
 
 export const createSession: APIGatewayProxyHandlerV2 = adapt(
   new CreateSessionController(
-    new AJVAdapter<CreateSessionRequest>({
+    new AjvValidationAdapter<CreateSessionRequest>({
       type: "object",
       required: ["body"],
       properties: {
@@ -97,7 +97,7 @@ export const createSession: APIGatewayProxyHandlerV2 = adapt(
 
 export const createUser: APIGatewayProxyHandlerV2 = adapt(
   new CreateUserController(
-    new AJVAdapter<CreateUserRequest>({
+    new AjvValidationAdapter<CreateUserRequest>({
       type: "object",
       required: ["headers", "body"],
       properties: {

@@ -1,15 +1,16 @@
-import AJV, {
+import Ajv, {
   type ValidateFunction,
   type JSONSchemaType,
   type DefinedError,
 } from "ajv";
+
 import type { Validation } from "../application/protocols/validation";
 
-export class AJVAdapter<T = unknown> implements Validation {
+export class AjvValidationAdapter<T = unknown> implements Validation {
   private readonly fn: ValidateFunction<T>;
 
   constructor(schema: JSONSchemaType<T>) {
-    const ajv = new AJV();
+    const ajv = new Ajv();
     this.fn = ajv.compile(schema);
   }
 

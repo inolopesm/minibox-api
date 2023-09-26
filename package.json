@@ -6,7 +6,7 @@
   "repository": "github:inolopesm/minibox-api",
   "private": true,
   "scripts": {
-    "sls:offline": "serverless offline",
+    "sls:offline": "serverless offline --host 0.0.0.0",
     "sls:create_domain": "serverless create_domain",
     "sls:delete_domain": "serverless delete_domain",
     "sls:deploy": "serverless deploy",

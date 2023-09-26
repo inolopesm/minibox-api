@@ -3,9 +3,8 @@ import type { Validation } from "../../protocols/validation";
 import type { FindOneByUsernameAndPasswordUserRepository } from "../../repositories/user-repository";
 import type { JWT } from "../../utils/jwt";
 
-export interface CreateSessionRequestBody {
-  username: string;
-  password: string;
+export interface CreateSessionRequest {
+  body: { username: string; password: string };
 }
 
 export class CreateSessionController implements Controller {
@@ -22,7 +21,7 @@ export class CreateSessionController implements Controller {
       return { statusCode: 400, body: { message: error.message } };
     }
 
-    const { username, password } = request.body as CreateSessionRequestBody;
+    const { username, password } = request.body as CreateSessionRequest["body"];
 
     const user =
       await this.findOneByUsernameAndPasswordUserRepository.findOneByUsernameAndPassword(

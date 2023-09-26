@@ -2,7 +2,7 @@ import Knex from "knex";
 
 import {
   CreateSessionController,
-  type CreateSessionRequestBody,
+  type CreateSessionRequest,
 } from "./application/controllers/sessions/create-session-controller";
 
 import {
@@ -76,7 +76,7 @@ export const handler: APIGatewayProxyHandlerV2 = async (event) => {
 
 export const createSession: APIGatewayProxyHandlerV2 = adapt(
   new CreateSessionController(
-    new AJVAdapter<{ body: CreateSessionRequestBody }>({
+    new AJVAdapter<CreateSessionRequest>({
       type: "object",
       required: ["body"],
       properties: {

@@ -1,3 +1,4 @@
+import Ajv from "ajv";
 import Knex from "knex";
 
 import {
@@ -24,6 +25,7 @@ import {
   AccessTokenDecorator,
   type AccessTokenRequest,
 } from "./application/decorators/access-token-decorator";
+
 import { JWT } from "./application/utils/jwt";
 import { AjvValidationAdapter } from "./infrastructure/ajv-validation-adapter";
 import { ProductKnexRepository } from "./infrastructure/product-knex-repository";
@@ -71,10 +73,40 @@ const env = {
   API_KEY: process.env.API_KEY as string,
 };
 
+if (
+  !new Ajv().compile<typeof env>({
+    type: "object",
+    required: ["SECRET", "POSTGRES_URL", "API_KEY"],
+    properties: {
+      SECRET: { type: "string" },
+      POSTGRES_URL: { type: "string" },
+      API_KEY: { type: "string" },
+    },
+  })(env)
+)
+  throw new Error("Environment variables validation failed");
+
 const knex = Knex({ client: "pg", connection: env.POSTGRES_URL });
 const jwt = new JWT(env.SECRET);
 const userKnexRepository = new UserKnexRepository(knex);
 const productKnexRepository = new ProductKnexRepository(knex);
+
+const auth = (controller: Controller): Controller =>
+  new AccessTokenDecorator(
+    controller,
+    new AjvValidationAdapter<AccessTokenRequest>({
+      type: "object",
+      required: ["headers"],
+      properties: {
+        headers: {
+          type: "object",
+          required: ["x-access-token"],
+          properties: { "x-access-token": { type: "string" } },
+        },
+      },
+    }),
+    jwt,
+  );
 
 export const handler: APIGatewayProxyHandlerV2 = async (event) => {
   return {
@@ -141,26 +173,28 @@ export const createUser: APIGatewayProxyHandlerV2 = adapt(
 );
 
 export const findProducts: APIGatewayProxyHandlerV2 = adapt(
-  new FindProductController(
-    new AjvValidationAdapter<FindProductRequest>({
-      type: "object",
-      required: ["query"],
-      properties: {
-        query: {
-          type: "object",
-          properties: {
-            name: { type: "string", maxLength: 24, nullable: true },
+  auth(
+    new FindProductController(
+      new AjvValidationAdapter<FindProductRequest>({
+        type: "object",
+        required: ["query"],
+        properties: {
+          query: {
+            type: "object",
+            properties: {
+              name: { type: "string", maxLength: 24, nullable: true },
+            },
           },
         },
-      },
-    }),
-    productKnexRepository,
-    productKnexRepository,
+      }),
+      productKnexRepository,
+      productKnexRepository,
+    ),
   ),
 );
 
 export const createProduct: APIGatewayProxyHandlerV2 = adapt(
-  new AccessTokenDecorator(
+  auth(
     new CreateProductController(
       new AjvValidationAdapter<CreateProductRequest>({
         type: "object",
@@ -178,17 +212,5 @@ export const createProduct: APIGatewayProxyHandlerV2 = adapt(
       }),
       productKnexRepository,
     ),
-    new AjvValidationAdapter<AccessTokenRequest>({
-      type: "object",
-      required: ["headers"],
-      properties: {
-        headers: {
-          type: "object",
-          required: ["x-access-token"],
-          properties: { "x-access-token": { type: "string" } },
-        },
-      },
-    }),
-    jwt,
   ),
 );

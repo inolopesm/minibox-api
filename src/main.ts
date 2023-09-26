@@ -1,4 +1,61 @@
-export const handler = async (event: any) => {
+import Knex from "knex";
+
+import {
+  CreateSessionController,
+  type CreateSessionRequestBody,
+} from "./application/controllers/sessions/create-session-controller";
+
+import { JWT } from "./application/utils/jwt";
+import { AJVAdapter } from "./infrastructure/ajv-adapter";
+import { UserRepository } from "./infrastructure/user-repository";
+import type { Controller, Request } from "./application/protocols/http";
+import type { APIGatewayProxyHandlerV2 } from "aws-lambda";
+
+const removeUndefined = (
+  object: Record<string, string | undefined>,
+): Record<string, string> =>
+  Object.fromEntries(
+    Object.entries(object).reduce<Array<[string, string]>>(
+      (array, [key, value]) =>
+        value !== undefined ? [...array, [key, value]] : array,
+      [],
+    ),
+  );
+
+const adapt =
+  (controller: Controller): APIGatewayProxyHandlerV2 =>
+  async (event) => {
+    const request: Request = {
+      headers: removeUndefined(event.headers),
+      path: removeUndefined(event.pathParameters ?? {}),
+      query: removeUndefined(event.queryStringParameters ?? {}),
+      body: event.body !== undefined ? JSON.parse(event.body) : {},
+    };
+
+    const response = await controller.handle(request);
+
+    return {
+      statusCode: response.statusCode,
+      ...(response.body !== undefined
+        ? {
+            headers: { "content-type": "application/json" },
+            body: JSON.stringify(response.body),
+          }
+        : {}),
+    };
+  };
+
+const env = {
+  SECRET: process.env.SECRET as string,
+  POSTGRES_URL: process.env.POSTGRES_URL as string,
+  API_KEY: process.env.API_KEY as string,
+};
+
+const knex = Knex({ client: "pg", connection: env.POSTGRES_URL });
+const jwt = new JWT(env.SECRET);
+const userRepository = new UserRepository(knex);
+
+export const handler: APIGatewayProxyHandlerV2 = async (event) => {
   return {
     statusCode: 200,
     body: JSON.stringify(
@@ -7,7 +64,28 @@ export const handler = async (event: any) => {
         input: event,
       },
       null,
-      2
+      2,
     ),
   };
 };
+
+export const createSession: APIGatewayProxyHandlerV2 = adapt(
+  new CreateSessionController(
+    new AJVAdapter<{ body: CreateSessionRequestBody }>({
+      type: "object",
+      required: ["body"],
+      properties: {
+        body: {
+          type: "object",
+          required: ["username", "password"],
+          properties: {
+            username: { type: "string", minLength: 1, maxLength: 24 },
+            password: { type: "string", minLength: 1, maxLength: 24 },
+          },
+        },
+      },
+    }),
+    userRepository,
+    jwt,
+  ),
+);

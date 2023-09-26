@@ -4,20 +4,31 @@ frameworkVersion: '3'
 provider:
   name: aws
   runtime: nodejs18.x
+  httpApi:
+    cors: true
 
 plugins:
   - serverless-plugin-typescript
   - serverless-offline
   - serverless-dotenv-plugin
+  - serverless-domain-manager
+
+package:
+  patterns:
+    - '!migrations/**'
 
 custom:
   serverlessPluginTypescript:
     tsConfigFileLocation: ./tsconfig.build.json
+  customDomain:
+    domainName: api.minibox.inolopesm.com
+    endpointType: regional
+    apiType: http
 
 functions:
   api:
     handler: src/main.handler
-    events:
-      - httpApi:
-          path: /
-          method: get
+    events: [ httpApi: GET / ]
+  createSession:
+    handler: src/main.createSession
+    events: [ httpApi: POST /sessions ]

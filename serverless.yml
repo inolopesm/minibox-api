@@ -35,3 +35,6 @@ functions:
   createUser:
     handler: src/main.createUser
     events: [ httpApi: POST /users ]
+  findProducts:
+    handler: src/main.findProducts
+    events: [ httpApi: GET /products ]

@@ -1,5 +1,7 @@
 import Knex from "knex";
 
+import { FindProductController } from "./application/controllers/products/find-product-controller";
+
 import {
   CreateSessionController,
   type CreateSessionRequest,
@@ -12,6 +14,7 @@ import {
 
 import { JWT } from "./application/utils/jwt";
 import { AjvValidationAdapter } from "./infrastructure/ajv-validation-adapter";
+import { ProductKnexRepository } from "./infrastructure/product-knex-repository";
 import { UserKnexRepository } from "./infrastructure/user-knex-repository";
 import type { Controller, Request } from "./application/protocols/http";
 import type { APIGatewayProxyHandlerV2 } from "aws-lambda";
@@ -59,6 +62,7 @@ const env = {
 const knex = Knex({ client: "pg", connection: env.POSTGRES_URL });
 const jwt = new JWT(env.SECRET);
 const userKnexRepository = new UserKnexRepository(knex);
+const productKnexRepository = new ProductKnexRepository(knex);
 
 export const handler: APIGatewayProxyHandlerV2 = async (event) => {
   return {
@@ -122,4 +126,8 @@ export const createUser: APIGatewayProxyHandlerV2 = adapt(
     userKnexRepository,
     userKnexRepository,
   ),
+);
+
+export const findProducts: APIGatewayProxyHandlerV2 = adapt(
+  new FindProductController(productKnexRepository),
 );

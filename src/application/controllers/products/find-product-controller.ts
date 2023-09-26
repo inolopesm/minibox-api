@@ -1,11 +1,36 @@
 import type { Controller, Request, Response } from "../../protocols/http";
-import type { FindProductRepository } from "../../repositories/product-repository";
+import type { Validation } from "../../protocols/validation";
+
+import type {
+  FindLikeNameProductRepository,
+  FindProductRepository,
+} from "../../repositories/product-repository";
+
+export interface FindProductRequest {
+  query: { name?: string };
+}
 
 export class FindProductController implements Controller {
-  constructor(private readonly findProductRepository: FindProductRepository) {}
+  constructor(
+    private readonly validation: Validation,
+    private readonly findProductRepository: FindProductRepository,
+    private readonly findLikeNameProductRepository: FindLikeNameProductRepository,
+  ) {}
 
-  async handle(_: Request): Promise<Response> {
-    const products = await this.findProductRepository.find();
+  async handle(request: Request): Promise<Response> {
+    const error = this.validation.validate(request);
+
+    if (error !== null) {
+      return { statusCode: 400, body: { message: error.message } };
+    }
+
+    const { name } = request.query as FindProductRequest["query"];
+
+    const products =
+      name !== undefined
+        ? await this.findLikeNameProductRepository.findLikeName(name)
+        : await this.findProductRepository.find();
+
     return { statusCode: 200, body: products };
   }
 }

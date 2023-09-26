@@ -1,6 +1,9 @@
 import Knex from "knex";
 
-import { FindProductController } from "./application/controllers/products/find-product-controller";
+import {
+  FindProductController,
+  type FindProductRequest,
+} from "./application/controllers/products/find-product-controller";
 
 import {
   CreateSessionController,
@@ -129,5 +132,20 @@ export const createUser: APIGatewayProxyHandlerV2 = adapt(
 );
 
 export const findProducts: APIGatewayProxyHandlerV2 = adapt(
-  new FindProductController(productKnexRepository),
+  new FindProductController(
+    new AjvValidationAdapter<FindProductRequest>({
+      type: "object",
+      required: ["query"],
+      properties: {
+        query: {
+          type: "object",
+          properties: {
+            name: { type: "string", maxLength: 24, nullable: true },
+          },
+        },
+      },
+    }),
+    productKnexRepository,
+    productKnexRepository,
+  ),
 );

@@ -8,7 +8,7 @@ import type {
 
 import type { Knex } from "knex";
 
-export class UserRepository
+export class UserKnexRepository
   implements
     FindOneByUsernameAndPasswordUserRepository,
     CountByUsernameUserRepository,

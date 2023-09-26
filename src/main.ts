@@ -12,7 +12,7 @@ import {
 
 import { JWT } from "./application/utils/jwt";
 import { AJVAdapter } from "./infrastructure/ajv-adapter";
-import { UserRepository } from "./infrastructure/user-repository";
+import { UserKnexRepository } from "./infrastructure/user-knex-repository";
 import type { Controller, Request } from "./application/protocols/http";
 import type { APIGatewayProxyHandlerV2 } from "aws-lambda";
 
@@ -58,7 +58,7 @@ const env = {
 
 const knex = Knex({ client: "pg", connection: env.POSTGRES_URL });
 const jwt = new JWT(env.SECRET);
-const userRepository = new UserRepository(knex);
+const userKnexRepository = new UserKnexRepository(knex);
 
 export const handler: APIGatewayProxyHandlerV2 = async (event) => {
   return {
@@ -90,7 +90,7 @@ export const createSession: APIGatewayProxyHandlerV2 = adapt(
         },
       },
     }),
-    userRepository,
+    userKnexRepository,
     jwt,
   ),
 );
@@ -119,7 +119,7 @@ export const createUser: APIGatewayProxyHandlerV2 = adapt(
       },
     }),
     env.API_KEY,
-    userRepository,
-    userRepository,
+    userKnexRepository,
+    userKnexRepository,
   ),
 );

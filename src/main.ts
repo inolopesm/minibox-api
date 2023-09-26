@@ -1,6 +1,11 @@
 import Knex from "knex";
 
 import {
+  CreateProductController,
+  type CreateProductRequest,
+} from "./application/controllers/products/create-product-controller";
+
+import {
   FindProductController,
   type FindProductRequest,
 } from "./application/controllers/products/find-product-controller";
@@ -15,6 +20,10 @@ import {
   type CreateUserRequest,
 } from "./application/controllers/users/create-user-controller";
 
+import {
+  AccessTokenDecorator,
+  type AccessTokenRequest,
+} from "./application/decorators/access-token-decorator";
 import { JWT } from "./application/utils/jwt";
 import { AjvValidationAdapter } from "./infrastructure/ajv-validation-adapter";
 import { ProductKnexRepository } from "./infrastructure/product-knex-repository";
@@ -147,5 +156,39 @@ export const findProducts: APIGatewayProxyHandlerV2 = adapt(
     }),
     productKnexRepository,
     productKnexRepository,
+  ),
+);
+
+export const createProduct: APIGatewayProxyHandlerV2 = adapt(
+  new AccessTokenDecorator(
+    new CreateProductController(
+      new AjvValidationAdapter<CreateProductRequest>({
+        type: "object",
+        required: ["body"],
+        properties: {
+          body: {
+            type: "object",
+            required: ["name", "value"],
+            properties: {
+              name: { type: "string", minLength: 1, maxLength: 24 },
+              value: { type: "integer", minimum: 1, maximum: 99999 },
+            },
+          },
+        },
+      }),
+      productKnexRepository,
+    ),
+    new AjvValidationAdapter<AccessTokenRequest>({
+      type: "object",
+      required: ["headers"],
+      properties: {
+        headers: {
+          type: "object",
+          required: ["x-access-token"],
+          properties: { "x-access-token": { type: "string" } },
+        },
+      },
+    }),
+    jwt,
   ),
 );

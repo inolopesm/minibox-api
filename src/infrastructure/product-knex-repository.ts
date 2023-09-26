@@ -1,6 +1,7 @@
 import type { Product } from "../application/entities/product";
 
 import type {
+  CreateProductRepository,
   FindLikeNameProductRepository,
   FindProductRepository,
 } from "../application/repositories/product-repository";
@@ -8,7 +9,10 @@ import type {
 import type { Knex } from "knex";
 
 export class ProductKnexRepository
-  implements FindProductRepository, FindLikeNameProductRepository
+  implements
+    FindProductRepository,
+    FindLikeNameProductRepository,
+    CreateProductRepository
 {
   constructor(private readonly knex: Knex) {}
 
@@ -20,5 +24,9 @@ export class ProductKnexRepository
     return await this.knex<Product>("Product")
       .whereILike("name", `%${name}%`)
       .orderBy("id");
+  }
+
+  async create(name: string, value: number): Promise<void> {
+    await this.knex<Product>("Product").insert({ name, value });
   }
 }

@@ -7,3 +7,7 @@ export interface FindProductRepository {
 export interface FindLikeNameProductRepository {
   findLikeName: (name: string) => Promise<Product[]>;
 }
+
+export interface CreateProductRepository {
+  create: (name: string, value: number) => Promise<void>;
+}

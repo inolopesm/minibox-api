@@ -5,7 +5,10 @@ provider:
   name: aws
   runtime: nodejs18.x
   httpApi:
-    cors: true
+    cors:
+      allowedOrigins: [ '*' ]
+      allowedHeaders: [ '*' ]
+      allowedMethods: [ '*' ]
 
 plugins:
   - serverless-plugin-typescript
@@ -38,3 +41,6 @@ functions:
   findProducts:
     handler: src/main.findProducts
     events: [ httpApi: GET /products ]
+  createProduct:
+    handler: src/main.createProduct
+    events: [ httpApi: POST /products ]

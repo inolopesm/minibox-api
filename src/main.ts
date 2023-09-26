@@ -5,6 +5,11 @@ import {
   type CreateSessionRequestBody,
 } from "./application/controllers/sessions/create-session-controller";
 
+import {
+  CreateUserController,
+  type CreateUserRequest,
+} from "./application/controllers/users/create-user-controller";
+
 import { JWT } from "./application/utils/jwt";
 import { AJVAdapter } from "./infrastructure/ajv-adapter";
 import { UserRepository } from "./infrastructure/user-repository";
@@ -87,5 +92,34 @@ export const createSession: APIGatewayProxyHandlerV2 = adapt(
     }),
     userRepository,
     jwt,
+  ),
+);
+
+export const createUser: APIGatewayProxyHandlerV2 = adapt(
+  new CreateUserController(
+    new AJVAdapter<CreateUserRequest>({
+      type: "object",
+      required: ["headers", "body"],
+      properties: {
+        headers: {
+          type: "object",
+          required: ["x-api-key"],
+          properties: {
+            "x-api-key": { type: "string", minLength: 1, maxLength: 255 },
+          },
+        },
+        body: {
+          type: "object",
+          required: ["username", "password"],
+          properties: {
+            username: { type: "string", minLength: 1, maxLength: 24 },
+            password: { type: "string", minLength: 1, maxLength: 24 },
+          },
+        },
+      },
+    }),
+    env.API_KEY,
+    userRepository,
+    userRepository,
   ),
 );

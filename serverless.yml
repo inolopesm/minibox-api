@@ -32,3 +32,6 @@ functions:
   createSession:
     handler: src/main.createSession
     events: [ httpApi: POST /sessions ]
+  createUser:
+    handler: src/main.createUser
+    events: [ httpApi: POST /users ]

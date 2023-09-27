@@ -23,14 +23,15 @@ export class JWT {
   }
 
   verify<T>(token: string): T | Error {
-    const [headerBase64, payloadBase64, signature] = token.split(".", 3);
+    const [headerBase64, payloadBase64, signature] = token.split(".", 3) as [
+      string,
+      string | undefined,
+      string | undefined,
+    ];
 
-    if (headerBase64 === undefined) return new Error("Invalid token");
     const headerText = Buffer.from(headerBase64, "base64url").toString("utf-8");
     const expectedHeader = '{"alg":"HS256","typ":"JWT"}';
     if (headerText !== expectedHeader) return new Error("Token not supported");
-    const headerObject = SafeJSON.parse(headerText);
-    if (headerObject === undefined) return new Error("Invalid token");
 
     if (payloadBase64 === undefined) return new Error("Invalid token");
     const payloadBuffer = Buffer.from(payloadBase64, "base64url");

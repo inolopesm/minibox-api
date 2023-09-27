@@ -1,92 +1,44 @@
-<!--
-title: 'AWS Simple HTTP Endpoint example in NodeJS'
-description: 'This template demonstrates how to make a simple HTTP API with Node.js running on AWS Lambda and API Gateway using the Serverless Framework.'
-layout: Doc
-framework: v3
-platform: AWS
-language: nodeJS
-authorLink: 'https://github.com/serverless'
-authorName: 'Serverless, inc.'
-authorAvatar: 'https://avatars1.githubusercontent.com/u/13742415?s=200&v=4'
--->
+# minibox-api
 
-# Serverless Framework Node HTTP API on AWS
+O `minibox-api` é o lado backend do [minibox](https://github.com/inolopesm/minibox). Este projeto foi feito utilizando [Node.js](https://nodejs.org/), [Serverless](https://www.serverless.com/) e [Knex.js](https://knexjs.org/), e como banco de dados [PostgreSQL](https://www.postgresql.org/)
 
-This template demonstrates how to make a simple HTTP API with Node.js running on AWS Lambda and API Gateway using the Serverless Framework.
+## Requisitos mínimos
 
-This template does not include any kind of persistence (database). For more advanced examples, check out the [serverless/examples repository](https://github.com/serverless/examples/) which includes Typescript, Mongo, DynamoDB and other examples.
+1. [Node.js](https://nodejs.org/) (Confira a versão no [package.json](./package.json))
+2. [npm.js](https://npmjs.com/) (Confira a versão no [package.json](./package.json))
+3. [PostgreSQL](https://www.postgresql.org/) v15.4-bookworm
 
-## Usage
+## Instalação
 
-### Deployment
+1. Clone o repositório: `git clone git@github.com:inolopesm/minibox-api.git`
+2. Acesse o diretório: `cd minibox-api`
+3. Instale as dependências: `npm install`
+3. Instale o pacote serverless de forma global: `npm install --global serverless`
 
-```
-$ serverless deploy
-```
+## Configuração
 
-After deploying, you should see output similar to:
+### Desenvolvimento
 
-```bash
-Deploying aws-node-http-api-project to stage dev (us-east-1)
+1. Crie o arquivo de configuração: `cp .env.example .env.local`
+2. Preencha o `.env.local` com os valores corretos
 
-✔ Service deployed to stack aws-node-http-api-project-dev (152s)
+### Produção
 
-endpoint: GET - https://xxxxxxxxxx.execute-api.us-east-1.amazonaws.com/
-functions:
-  hello: aws-node-http-api-project-dev-hello (1.9 kB)
-```
+1. Crie o arquivo de configuração: `cp .env.example .env.production`
+2. Preencha o `.env.production` com os valores corretos
+3. Altere o domínio customizado dentro do `serverless.yml` se for necessário
 
-_Note_: In current form, after deployment, your API is public and can be invoked by anyone. For production deployments, you might want to configure an authorizer. For details on how to do that, refer to [http event docs](https://www.serverless.com/framework/docs/providers/aws/events/apigateway/).
+## Usagem
 
-### Invocation
+### Desenvolvimento
 
-After successful deployment, you can call the created application via HTTP:
+1. Execute o projeto em modo de desenvolvimento: `npm run sls:offline`
 
-```bash
-curl https://xxxxxxx.execute-api.us-east-1.amazonaws.com/
-```
+### Produção
 
-Which should result in response similar to the following (removed `input` content for brevity):
+1. Crie o domínio customizado: `npm run sls:create_domain`
+2. Faça o deploy: `npm run sls:deploy:production`
 
-```json
-{
-  "message": "Go Serverless v2.0! Your function executed successfully!",
-  "input": {
-    ...
-  }
-}
-```
+## Licença
 
-### Local development
-
-You can invoke your function locally by using the following command:
-
-```bash
-serverless invoke local --function hello
-```
-
-Which should result in response similar to the following:
-
-```
-{
-  "statusCode": 200,
-  "body": "{\n  \"message\": \"Go Serverless v3.0! Your function executed successfully!\",\n  \"input\": \"\"\n}"
-}
-```
-
-
-Alternatively, it is also possible to emulate API Gateway and Lambda locally by using `serverless-offline` plugin. In order to do that, execute the following command:
-
-```bash
-serverless plugin install -n serverless-offline
-```
-
-It will add the `serverless-offline` plugin to `devDependencies` in `package.json` file as well as will add it to `plugins` in `serverless.yml`.
-
-After installation, you can start local emulation with:
-
-```
-serverless offline
-```
-
-To learn more about the capabilities of `serverless-offline`, please refer to its [GitHub repository](https://github.com/dherault/serverless-offline).
+Este projeto está sob a licença [GPL-3.0](./LICENSE)

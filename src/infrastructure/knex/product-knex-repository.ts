@@ -1,10 +1,10 @@
-import type { Product } from "../application/entities/product";
+import type { Product } from "../../application/entities/product";
 
 import type {
   CreateProductRepository,
   FindLikeNameProductRepository,
   FindProductRepository,
-} from "../application/repositories/product-repository";
+} from "../../application/repositories/product-repository";
 
 import type { Knex } from "knex";
 

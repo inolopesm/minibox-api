@@ -1,10 +1,10 @@
-import type { User } from "../application/entities/user";
+import type { User } from "../../application/entities/user";
 
 import type {
   CountByUsernameUserRepository,
   CreateUserRepository,
   FindOneByUsernameAndPasswordUserRepository,
-} from "../application/repositories/user-repository";
+} from "../../application/repositories/user-repository";
 
 import type { Knex } from "knex";
 

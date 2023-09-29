@@ -1,5 +1,5 @@
 import Ajv from "ajv";
-import type { Validation } from "../application/protocols/validation";
+import type { Validation } from "../../application/protocols/validation";
 import type { ValidateFunction, JSONSchemaType, DefinedError } from "ajv";
 
 export class AjvValidationAdapter<T = unknown> implements Validation {

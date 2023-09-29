@@ -27,9 +27,9 @@ import {
 } from "./application/decorators/access-token-decorator";
 
 import { JWT } from "./application/utils/jwt";
-import { AjvValidationAdapter } from "./infrastructure/ajv-validation-adapter";
-import { ProductKnexRepository } from "./infrastructure/product-knex-repository";
-import { UserKnexRepository } from "./infrastructure/user-knex-repository";
+import { AjvValidationAdapter } from "./infrastructure/ajv/ajv-validation-adapter";
+import { ProductKnexRepository } from "./infrastructure/knex/product-knex-repository";
+import { UserKnexRepository } from "./infrastructure/knex/user-knex-repository";
 import type { Controller, Request } from "./application/protocols/http";
 import type { APIGatewayProxyHandlerV2 } from "aws-lambda";
 

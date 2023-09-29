@@ -151,7 +151,7 @@ export const findProducts: APIGatewayProxyHandlerV2 = adapt(
           query: {
             type: "object",
             properties: {
-              name: { type: "string", maxLength: 24, nullable: true },
+              name: { type: "string", maxLength: 48, nullable: true },
             },
           },
         },
@@ -193,7 +193,7 @@ export const createProduct: APIGatewayProxyHandlerV2 = adapt(
             type: "object",
             required: ["name", "value"],
             properties: {
-              name: { type: "string", minLength: 1, maxLength: 24 },
+              name: { type: "string", minLength: 1, maxLength: 48 },
               value: { type: "integer", minimum: 1, maximum: 99999 },
             },
           },
@@ -222,7 +222,7 @@ export const updateProduct: APIGatewayProxyHandlerV2 = adapt(
             type: "object",
             required: ["name", "value"],
             properties: {
-              name: { type: "string", minLength: 1, maxLength: 24 },
+              name: { type: "string", minLength: 1, maxLength: 48 },
               value: { type: "integer", minimum: 1, maximum: 99999 },
             },
           },

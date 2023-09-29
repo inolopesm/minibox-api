@@ -27,6 +27,26 @@ import {
 } from "./application/controllers/sessions/create-session-controller";
 
 import {
+  CreateTeamController,
+  type CreateTeamRequest,
+} from "./application/controllers/teams/create-team-controller";
+
+import {
+  FindOneTeamController,
+  type FindOneTeamRequest,
+} from "./application/controllers/teams/find-one-team-controller";
+
+import {
+  FindTeamController,
+  type FindTeamRequest,
+} from "./application/controllers/teams/find-team-controller";
+
+import {
+  UpdateTeamController,
+  type UpdateTeamRequest,
+} from "./application/controllers/teams/update-team-controller";
+
+import {
   CreateUserController,
   type CreateUserRequest,
 } from "./application/controllers/users/create-user-controller";
@@ -39,6 +59,7 @@ import {
 import { JWT } from "./application/utils/jwt";
 import { AjvValidationAdapter } from "./infrastructure/ajv/ajv-validation-adapter";
 import { ProductKnexRepository } from "./infrastructure/knex/product-knex-repository";
+import { TeamKnexRepository } from "./infrastructure/knex/team-knex-repository";
 import { UserKnexRepository } from "./infrastructure/knex/user-knex-repository";
 import type { Controller, Request } from "./application/protocols/http";
 import type { APIGatewayProxyHandlerV2 } from "aws-lambda";
@@ -100,6 +121,7 @@ const knex = Knex({ client: "pg", connection: env.POSTGRES_URL });
 const jwt = new JWT(env.SECRET);
 const userKnexRepository = new UserKnexRepository(knex);
 const productKnexRepository = new ProductKnexRepository(knex);
+const teamKnexRepository = new TeamKnexRepository(knex);
 
 const auth = (controller: Controller): Controller =>
   new AccessTokenDecorator(
@@ -271,6 +293,97 @@ export const updateProduct: APIGatewayProxyHandlerV2 = adapt(
         },
       }),
       productKnexRepository,
+    ),
+  ),
+);
+
+export const findTeams: APIGatewayProxyHandlerV2 = adapt(
+  auth(
+    new FindTeamController(
+      new AjvValidationAdapter<FindTeamRequest>({
+        type: "object",
+        required: ["query"],
+        properties: {
+          query: {
+            type: "object",
+            properties: {
+              name: { type: "string", maxLength: 24, nullable: true },
+            },
+          },
+        },
+      }),
+      teamKnexRepository,
+      teamKnexRepository,
+    ),
+  ),
+);
+
+export const findOneTeam: APIGatewayProxyHandlerV2 = adapt(
+  auth(
+    new FindOneTeamController(
+      new AjvValidationAdapter<FindOneTeamRequest>({
+        type: "object",
+        required: ["params"],
+        properties: {
+          params: {
+            type: "object",
+            required: ["teamId"],
+            properties: {
+              teamId: { type: "string", pattern: "[0-9]+" },
+            },
+          },
+        },
+      }),
+      teamKnexRepository,
+    ),
+  ),
+);
+
+export const createTeam: APIGatewayProxyHandlerV2 = adapt(
+  auth(
+    new CreateTeamController(
+      new AjvValidationAdapter<CreateTeamRequest>({
+        type: "object",
+        required: ["body"],
+        properties: {
+          body: {
+            type: "object",
+            required: ["name"],
+            properties: {
+              name: { type: "string", minLength: 1, maxLength: 24 },
+            },
+          },
+        },
+      }),
+      teamKnexRepository,
+    ),
+  ),
+);
+
+export const updateTeam: APIGatewayProxyHandlerV2 = adapt(
+  auth(
+    new UpdateTeamController(
+      new AjvValidationAdapter<UpdateTeamRequest>({
+        type: "object",
+        required: ["params", "body"],
+        properties: {
+          params: {
+            type: "object",
+            required: ["teamId"],
+            properties: {
+              teamId: { type: "string", pattern: "[0-9]+" },
+            },
+          },
+          body: {
+            type: "object",
+            required: ["name"],
+            properties: {
+              name: { type: "string", minLength: 1, maxLength: 24 },
+            },
+          },
+        },
+      }),
+      teamKnexRepository,
     ),
   ),
 );

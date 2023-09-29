@@ -50,3 +50,15 @@ functions:
   updateProduct:
     handler: src/main.updateProduct
     events: [ httpApi: 'PUT /products/{productId}' ]
+  findTeams:
+    handler: src/main.findTeams
+    events: [ httpApi: GET /teams ]
+  findOneTeam:
+    handler: src/main.findOneTeam
+    events: [ httpApi: 'GET /teams/{teamId}' ]
+  createTeam:
+    handler: src/main.createTeam
+    events: [ httpApi: POST /teams ]
+  updateTeam:
+    handler: src/main.updateTeam
+    events: [ httpApi: 'PUT /teams/{teamId}' ]

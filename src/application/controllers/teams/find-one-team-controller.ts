@@ -30,7 +30,7 @@ export class FindOneTeamController implements Controller {
     const team = await this.findOneByIdTeamRepository.findOneById(id);
 
     if (team === null) {
-      return { statusCode: 400, body: { message: "Produto não encontrado" } };
+      return { statusCode: 400, body: { message: "Equipe não encontrada" } };
     }
 
     return { statusCode: 200, body: team };

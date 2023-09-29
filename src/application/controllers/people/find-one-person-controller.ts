@@ -30,7 +30,7 @@ export class FindOnePersonController implements Controller {
     const person = await this.findOneByIdPersonRepository.findOneById(id);
 
     if (person === null) {
-      return { statusCode: 400, body: { message: "Produto não encontrado" } };
+      return { statusCode: 400, body: { message: "Pessoa não encontrada" } };
     }
 
     return { statusCode: 200, body: person };

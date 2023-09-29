@@ -29,6 +29,14 @@ import {
   type UpdateTeamRequest,
   CreateUserController,
   type CreateUserRequest,
+  CreateInvoiceController,
+  type CreateInvoiceRequest,
+  FindInvoiceController,
+  type FindInvoiceRequest,
+  FindOneInvoiceController,
+  type FindOneInvoiceRequest,
+  PayInvoiceController,
+  type PayInvoiceRequest,
 } from "./application/controllers";
 
 import {
@@ -38,7 +46,6 @@ import {
 
 import { JWT } from "./application/utils";
 import { AjvValidationAdapter } from "./infrastructure/ajv";
-
 import { env } from "./infrastructure/env";
 
 import {
@@ -46,10 +53,10 @@ import {
   ProductKnexRepository,
   TeamKnexRepository,
   UserKnexRepository,
+  InvoiceKnexRepository,
 } from "./infrastructure/knex";
 
-import { adapt } from "./infrastructure/serverless/serverless-controller-adapter";
-
+import { adapt } from "./infrastructure/serverless";
 import type { Controller } from "./application/protocols";
 import type { APIGatewayProxyHandlerV2 } from "aws-lambda";
 
@@ -59,6 +66,7 @@ const userKnexRepository = new UserKnexRepository(knex);
 const productKnexRepository = new ProductKnexRepository(knex);
 const teamKnexRepository = new TeamKnexRepository(knex);
 const personKnexRepository = new PersonKnexRepository(knex);
+const invoiceKnexRepository = new InvoiceKnexRepository(knex);
 
 const auth = (controller: Controller): Controller =>
   new AccessTokenDecorator(
@@ -415,6 +423,112 @@ export const updatePerson: APIGatewayProxyHandlerV2 = adapt(
       }),
       teamKnexRepository,
       personKnexRepository,
+    ),
+  ),
+);
+
+export const findInvoices: APIGatewayProxyHandlerV2 = adapt(
+  auth(
+    new FindInvoiceController(
+      new AjvValidationAdapter<FindInvoiceRequest>({
+        type: "object",
+        required: ["query"],
+        properties: {
+          query: {
+            type: "object",
+            properties: {
+              teamId: { type: "string", pattern: "[0-9]+", nullable: true },
+              personId: { type: "string", pattern: "[0-9]+", nullable: true },
+              paid: { type: "string", pattern: "true|false", nullable: true },
+            },
+          },
+        },
+      }),
+      invoiceKnexRepository,
+      invoiceKnexRepository,
+      invoiceKnexRepository,
+      invoiceKnexRepository,
+      invoiceKnexRepository,
+      invoiceKnexRepository,
+      invoiceKnexRepository,
+      invoiceKnexRepository,
+    ),
+  ),
+);
+
+export const findOneInvoice: APIGatewayProxyHandlerV2 = adapt(
+  auth(
+    new FindOneInvoiceController(
+      new AjvValidationAdapter<FindOneInvoiceRequest>({
+        type: "object",
+        required: ["params"],
+        properties: {
+          params: {
+            type: "object",
+            required: ["invoiceId"],
+            properties: {
+              invoiceId: { type: "string", pattern: "[0-9]+" },
+            },
+          },
+        },
+      }),
+      invoiceKnexRepository,
+    ),
+  ),
+);
+
+export const createInvoice: APIGatewayProxyHandlerV2 = adapt(
+  auth(
+    new CreateInvoiceController(
+      new AjvValidationAdapter<CreateInvoiceRequest>({
+        type: "object",
+        required: ["body"],
+        properties: {
+          body: {
+            type: "object",
+            required: ["personId", "products"],
+            properties: {
+              personId: { type: "integer", minimum: 1 },
+              products: {
+                type: "array",
+                minItems: 1,
+                items: {
+                  type: "object",
+                  required: ["name", "value"],
+                  properties: {
+                    name: { type: "string", minLength: 1, maxLength: 48 },
+                    value: { type: "integer", minimum: 1, maximum: 99999 },
+                  },
+                },
+              },
+            },
+          },
+        },
+      }),
+      personKnexRepository,
+      invoiceKnexRepository,
+    ),
+  ),
+);
+
+export const payInvoice: APIGatewayProxyHandlerV2 = adapt(
+  auth(
+    new PayInvoiceController(
+      new AjvValidationAdapter<PayInvoiceRequest>({
+        type: "object",
+        required: ["params"],
+        properties: {
+          params: {
+            type: "object",
+            required: ["invoiceId"],
+            properties: {
+              invoiceId: { type: "string", pattern: "[0-9]+" },
+            },
+          },
+        },
+      }),
+      invoiceKnexRepository,
+      invoiceKnexRepository,
     ),
   ),
 );

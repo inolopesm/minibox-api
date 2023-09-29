@@ -74,3 +74,15 @@ functions:
   updatePerson:
     handler: src/main.updatePerson
     events: [ httpApi: 'PUT /people/{personId}' ]
+  findInvoices:
+    handler: src/main.findInvoices
+    events: [ httpApi: GET /invoices ]
+  findOneInvoice:
+    handler: src/main.findOneInvoice
+    events: [ httpApi: 'GET /invoices/{invoiceId}' ]
+  createInvoice:
+    handler: src/main.createInvoice
+    events: [ httpApi: POST /invoices ]
+  updateInvoice:
+    handler: src/main.updateInvoice
+    events: [ httpApi: 'PUT /invoices/{invoiceId}' ]

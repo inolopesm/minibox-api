@@ -1,7 +1,14 @@
-import { type FindOneByIdTeamRepository } from "../../repositories/team-repository";
-import type { Controller, Request, Response } from "../../protocols/http";
-import type { Validation } from "../../protocols/validation";
-import type { CreatePersonRepository } from "../../repositories/person-repository";
+import type {
+  Controller,
+  Request,
+  Response,
+  Validation,
+} from "../../protocols";
+
+import type {
+  FindOneByIdTeamRepository,
+  CreatePersonRepository,
+} from "../../repositories";
 
 export interface CreatePersonRequest {
   body: { name: string; teamId: number };

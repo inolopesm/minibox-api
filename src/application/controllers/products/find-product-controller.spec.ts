@@ -1,7 +1,6 @@
 import { FindProductController } from "./find-product-controller";
-import type { Product } from "../../entities/product";
-import type { Request, Response } from "../../protocols/http";
-import type { Validation } from "../../protocols/validation";
+import type { Product } from "../../entities";
+import type { Request, Response, Validation } from "../../protocols";
 
 import type {
   FindLikeNameProductRepository,

@@ -1,6 +1,5 @@
-import type { Controller, Request, Response } from "../protocols/http";
-import type { Validation } from "../protocols/validation";
-import type { JWT } from "../utils/jwt";
+import type { Controller, Request, Response, Validation } from "../protocols";
+import type { JWT } from "../utils";
 
 export interface AccessTokenRequest {
   headers: { "x-access-token": string };

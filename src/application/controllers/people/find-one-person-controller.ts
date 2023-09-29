@@ -1,6 +1,11 @@
-import type { Controller, Request, Response } from "../../protocols/http";
-import type { Validation } from "../../protocols/validation";
-import type { FindOneByIdPersonRepository } from "../../repositories/person-repository";
+import type {
+  Controller,
+  Request,
+  Response,
+  Validation,
+} from "../../protocols";
+
+import type { FindOneByIdPersonRepository } from "../../repositories";
 
 export interface FindOnePersonRequest {
   params: { personId: string };

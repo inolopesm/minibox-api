@@ -1,9 +1,8 @@
-import { JWT } from "../../utils/jwt";
+import { JWT } from "../../utils";
 import { CreateSessionController } from "./create-session-controller";
-import type { User } from "../../entities/user";
-import type { Request, Response } from "../../protocols/http";
-import type { Validation } from "../../protocols/validation";
-import type { FindOneByUsernameAndPasswordUserRepository } from "../../repositories/user-repository";
+import type { User } from "../../entities";
+import type { Request, Response, Validation } from "../../protocols";
+import type { FindOneByUsernameAndPasswordUserRepository } from "../../repositories";
 
 const SECRET = Math.random().toString(36).substring(2);
 

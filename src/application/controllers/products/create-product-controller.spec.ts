@@ -1,7 +1,6 @@
 import { CreateProductController } from "./create-product-controller";
-import type { Request, Response } from "../../protocols/http";
-import type { Validation } from "../../protocols/validation";
-import type { CreateProductRepository } from "../../repositories/product-repository";
+import type { Request, Response, Validation } from "../../protocols";
+import type { CreateProductRepository } from "../../repositories";
 
 class ValidationSpy implements Validation {
   input?: unknown;

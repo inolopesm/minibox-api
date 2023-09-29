@@ -1,7 +1,6 @@
-import { JWT } from "../utils/jwt";
+import { JWT } from "../utils";
 import { AccessTokenDecorator } from "./access-token-decorator";
-import type { Controller, Request, Response } from "../protocols/http";
-import type { Validation } from "../protocols/validation";
+import type { Controller, Request, Response, Validation } from "../protocols";
 
 const SECRET = Math.random().toString(36).substring(2);
 

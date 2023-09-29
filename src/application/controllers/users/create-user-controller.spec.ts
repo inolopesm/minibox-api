@@ -1,6 +1,5 @@
 import { CreateUserController } from "./create-user-controller";
-import type { Request, Response } from "../../protocols/http";
-import type { Validation } from "../../protocols/validation";
+import type { Request, Response, Validation } from "../../protocols";
 
 import type {
   CountByUsernameUserRepository,

@@ -1,142 +1,57 @@
-import Ajv from "ajv";
 import Knex from "knex";
 
 import {
   CreatePersonController,
   type CreatePersonRequest,
-} from "./application/controllers/people/create-person-controller";
-
-import {
   FindOnePersonController,
   type FindOnePersonRequest,
-} from "./application/controllers/people/find-one-person-controller";
-
-import {
   FindPersonController,
   type FindPersonRequest,
-} from "./application/controllers/people/find-person-controller";
-
-import {
   UpdatePersonController,
   type UpdatePersonRequest,
-} from "./application/controllers/people/update-person-controller";
-
-import {
   CreateProductController,
   type CreateProductRequest,
-} from "./application/controllers/products/create-product-controller";
-
-import {
   FindOneProductController,
   type FindOneProductRequest,
-} from "./application/controllers/products/find-one-product-controller";
-
-import {
   FindProductController,
   type FindProductRequest,
-} from "./application/controllers/products/find-product-controller";
-
-import {
   UpdateProductController,
   type UpdateProductRequest,
-} from "./application/controllers/products/update-product-controller";
-
-import {
   CreateSessionController,
   type CreateSessionRequest,
-} from "./application/controllers/sessions/create-session-controller";
-
-import {
   CreateTeamController,
   type CreateTeamRequest,
-} from "./application/controllers/teams/create-team-controller";
-
-import {
   FindOneTeamController,
   type FindOneTeamRequest,
-} from "./application/controllers/teams/find-one-team-controller";
-
-import {
   FindTeamController,
   type FindTeamRequest,
-} from "./application/controllers/teams/find-team-controller";
-
-import {
   UpdateTeamController,
   type UpdateTeamRequest,
-} from "./application/controllers/teams/update-team-controller";
-
-import {
   CreateUserController,
   type CreateUserRequest,
-} from "./application/controllers/users/create-user-controller";
+} from "./application/controllers";
 
 import {
   AccessTokenDecorator,
   type AccessTokenRequest,
-} from "./application/decorators/access-token-decorator";
+} from "./application/decorators";
 
-import { JWT } from "./application/utils/jwt";
-import { AjvValidationAdapter } from "./infrastructure/ajv/ajv-validation-adapter";
-import { PersonKnexRepository } from "./infrastructure/knex/person-knex-repository";
-import { ProductKnexRepository } from "./infrastructure/knex/product-knex-repository";
-import { TeamKnexRepository } from "./infrastructure/knex/team-knex-repository";
-import { UserKnexRepository } from "./infrastructure/knex/user-knex-repository";
-import type { Controller, Request } from "./application/protocols/http";
+import { JWT } from "./application/utils";
+import { AjvValidationAdapter } from "./infrastructure/ajv";
+
+import { env } from "./infrastructure/env";
+
+import {
+  PersonKnexRepository,
+  ProductKnexRepository,
+  TeamKnexRepository,
+  UserKnexRepository,
+} from "./infrastructure/knex";
+
+import { adapt } from "./infrastructure/serverless/serverless-controller-adapter";
+
+import type { Controller } from "./application/protocols";
 import type { APIGatewayProxyHandlerV2 } from "aws-lambda";
-
-const removeUndefined = (
-  object: Record<string, string | undefined>,
-): Record<string, string> =>
-  Object.fromEntries(
-    Object.entries(object).reduce<Array<[string, string]>>(
-      (array, [key, value]) =>
-        value !== undefined ? [...array, [key, value]] : array,
-      [],
-    ),
-  );
-
-const adapt =
-  (controller: Controller): APIGatewayProxyHandlerV2 =>
-  async (event) => {
-    const request: Request = {
-      headers: removeUndefined(event.headers),
-      params: removeUndefined(event.pathParameters ?? {}),
-      query: removeUndefined(event.queryStringParameters ?? {}),
-      body: event.body !== undefined ? JSON.parse(event.body) : {},
-    };
-
-    const response = await controller.handle(request);
-
-    return {
-      statusCode: response.statusCode,
-      ...(response.body !== undefined
-        ? {
-            headers: { "content-type": "application/json" },
-            body: JSON.stringify(response.body),
-          }
-        : {}),
-    };
-  };
-
-const env = {
-  SECRET: process.env.SECRET as string,
-  POSTGRES_URL: process.env.POSTGRES_URL as string,
-  API_KEY: process.env.API_KEY as string,
-};
-
-if (
-  !new Ajv().compile<typeof env>({
-    type: "object",
-    required: ["SECRET", "POSTGRES_URL", "API_KEY"],
-    properties: {
-      SECRET: { type: "string" },
-      POSTGRES_URL: { type: "string" },
-      API_KEY: { type: "string" },
-    },
-  })(env)
-)
-  throw new Error("Environment variables validation failed");
 
 const knex = Knex({ client: "pg", connection: env.POSTGRES_URL });
 const jwt = new JWT(env.SECRET);

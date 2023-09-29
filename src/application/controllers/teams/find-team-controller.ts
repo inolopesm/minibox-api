@@ -5,10 +5,7 @@ import type {
   Validation,
 } from "../../protocols";
 
-import type {
-  FindLikeNameTeamRepository,
-  FindTeamRepository,
-} from "../../repositories/team-repository";
+import type { FindLikeNameTeamRepository } from "../../repositories/team-repository";
 
 export interface FindTeamRequest {
   query: { name?: string };
@@ -17,7 +14,6 @@ export interface FindTeamRequest {
 export class FindTeamController implements Controller {
   constructor(
     private readonly validation: Validation,
-    private readonly findTeamRepository: FindTeamRepository,
     private readonly findLikeNameTeamRepository: FindLikeNameTeamRepository,
   ) {}
 
@@ -28,12 +24,9 @@ export class FindTeamController implements Controller {
       return { statusCode: 400, body: { message: error.message } };
     }
 
-    const { name } = request.query as FindTeamRequest["query"];
+    const { name = "" } = request.query as FindTeamRequest["query"];
 
-    const teams =
-      name !== undefined
-        ? await this.findLikeNameTeamRepository.findLikeName(name)
-        : await this.findTeamRepository.find();
+    const teams = await this.findLikeNameTeamRepository.findLikeName(name);
 
     return { statusCode: 200, body: teams };
   }

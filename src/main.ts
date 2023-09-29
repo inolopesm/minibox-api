@@ -157,7 +157,6 @@ export const findProducts: APIGatewayProxyHandlerV2 = adapt(
         },
       }),
       productKnexRepository,
-      productKnexRepository,
     ),
   ),
 );
@@ -249,7 +248,6 @@ export const findTeams: APIGatewayProxyHandlerV2 = adapt(
           },
         },
       }),
-      teamKnexRepository,
       teamKnexRepository,
     ),
   ),

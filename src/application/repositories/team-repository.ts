@@ -1,9 +1,5 @@
 import type { Team } from "../entities/team";
 
-export interface FindTeamRepository {
-  find: () => Promise<Team[]>;
-}
-
 export interface FindLikeNameTeamRepository {
   findLikeName: (name: string) => Promise<Team[]>;
 }

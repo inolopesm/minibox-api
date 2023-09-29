@@ -2,10 +2,7 @@ import { FindProductController } from "./find-product-controller";
 import type { Product } from "../../entities";
 import type { Request, Response, Validation } from "../../protocols";
 
-import type {
-  FindLikeNameProductRepository,
-  FindProductRepository,
-} from "../../repositories/product-repository";
+import type { FindLikeNameProductRepository } from "../../repositories/product-repository";
 
 class ValidationSpy implements Validation {
   input?: unknown;
@@ -13,25 +10,6 @@ class ValidationSpy implements Validation {
 
   validate(input: unknown): Error | null {
     this.input = input;
-    return this.result;
-  }
-}
-
-class FindProductRepositorySpy implements FindProductRepository {
-  result: Product[] = [
-    {
-      id: Number(Math.random().toString().substring(2)),
-      name: Math.random().toString(36).substring(2),
-      value: Number(Math.random().toString().substring(2)),
-    },
-    {
-      id: Number(Math.random().toString().substring(2)),
-      name: Math.random().toString(36).substring(2),
-      value: Number(Math.random().toString().substring(2)),
-    },
-  ];
-
-  async find(): Promise<Product[]> {
     return this.result;
   }
 }
@@ -67,7 +45,6 @@ describe("FindProductController", () => {
   let name: string;
   let request: Request;
   let validationSpy: ValidationSpy;
-  let findProductRepositorySpy: FindProductRepositorySpy;
   let findLikeNameProductRepositorySpy: FindLikeNameProductRepositorySpy;
   let findProductController: FindProductController;
 
@@ -81,11 +58,8 @@ describe("FindProductController", () => {
       name,
     );
 
-    findProductRepositorySpy = new FindProductRepositorySpy();
-
     findProductController = new FindProductController(
       validationSpy,
-      findProductRepositorySpy,
       findLikeNameProductRepositorySpy,
     );
   });
@@ -95,9 +69,10 @@ describe("FindProductController", () => {
 
     const expectedResponse: Response = {
       statusCode: 200,
-      body: findProductRepositorySpy.result,
+      body: findLikeNameProductRepositorySpy.result,
     };
 
+    expect(findLikeNameProductRepositorySpy.name).toEqual("");
     expect(response).toEqual(expectedResponse);
   });
 
@@ -110,6 +85,7 @@ describe("FindProductController", () => {
       body: findLikeNameProductRepositorySpy.result,
     };
 
+    expect(findLikeNameProductRepositorySpy.name).toEqual(name);
     expect(response).toEqual(expectedResponse);
   });
 

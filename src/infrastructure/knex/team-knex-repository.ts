@@ -4,7 +4,6 @@ import type {
   CreateTeamRepository,
   FindLikeNameTeamRepository,
   FindOneByIdTeamRepository,
-  FindTeamRepository,
   UpdateNameByIdTeamRepository,
 } from "../../application/repositories/team-repository";
 
@@ -12,17 +11,12 @@ import type { Knex } from "knex";
 
 export class TeamKnexRepository
   implements
-    FindTeamRepository,
     FindLikeNameTeamRepository,
     FindOneByIdTeamRepository,
     CreateTeamRepository,
     UpdateNameByIdTeamRepository
 {
   constructor(private readonly knex: Knex) {}
-
-  async find(): Promise<Team[]> {
-    return await this.knex<Team>("Team").orderBy("id");
-  }
 
   async findLikeName(name: string): Promise<Team[]> {
     return await this.knex<Team>("Team")

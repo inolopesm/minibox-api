@@ -5,10 +5,7 @@ import type {
   Validation,
 } from "../../protocols";
 
-import type {
-  FindLikeNameProductRepository,
-  FindProductRepository,
-} from "../../repositories";
+import type { FindLikeNameProductRepository } from "../../repositories";
 
 export interface FindProductRequest {
   query: { name?: string };
@@ -17,7 +14,6 @@ export interface FindProductRequest {
 export class FindProductController implements Controller {
   constructor(
     private readonly validation: Validation,
-    private readonly findProductRepository: FindProductRepository,
     private readonly findLikeNameProductRepository: FindLikeNameProductRepository,
   ) {}
 
@@ -28,12 +24,10 @@ export class FindProductController implements Controller {
       return { statusCode: 400, body: { message: error.message } };
     }
 
-    const { name } = request.query as FindProductRequest["query"];
+    const { name = "" } = request.query as FindProductRequest["query"];
 
     const products =
-      name !== undefined
-        ? await this.findLikeNameProductRepository.findLikeName(name)
-        : await this.findProductRepository.find();
+      await this.findLikeNameProductRepository.findLikeName(name);
 
     return { statusCode: 200, body: products };
   }

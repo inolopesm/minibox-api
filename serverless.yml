@@ -41,6 +41,12 @@ functions:
   findProducts:
     handler: src/main.findProducts
     events: [ httpApi: GET /products ]
+  findOneProduct:
+    handler: src/main.findOneProduct
+    events: [ httpApi: 'GET /products/{productId}' ]
   createProduct:
     handler: src/main.createProduct
     events: [ httpApi: POST /products ]
+  updateProduct:
+    handler: src/main.updateProduct
+    events: [ httpApi: 'PUT /products/{productId}' ]

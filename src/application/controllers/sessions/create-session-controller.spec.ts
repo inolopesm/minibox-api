@@ -55,7 +55,7 @@ describe("CreateSessionController", () => {
 
     request = {
       headers: {},
-      path: {},
+      params: {},
       query: {},
       body: { username: user.username, password: user.password },
     };

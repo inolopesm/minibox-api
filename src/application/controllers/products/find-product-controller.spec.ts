@@ -74,7 +74,7 @@ describe("FindProductController", () => {
 
   beforeEach(() => {
     name = Math.random().toString(36).substring(2);
-    request = { headers: {}, path: {}, query: {}, body: {} };
+    request = { headers: {}, params: {}, query: {}, body: {} };
 
     validationSpy = new ValidationSpy();
 

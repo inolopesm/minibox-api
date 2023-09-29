@@ -7,9 +7,19 @@ import {
 } from "./application/controllers/products/create-product-controller";
 
 import {
+  FindOneProductController,
+  type FindOneProductRequest,
+} from "./application/controllers/products/find-one-product-controller";
+
+import {
   FindProductController,
   type FindProductRequest,
 } from "./application/controllers/products/find-product-controller";
+
+import {
+  UpdateProductController,
+  type UpdateProductRequest,
+} from "./application/controllers/products/update-product-controller";
 
 import {
   CreateSessionController,
@@ -49,7 +59,7 @@ const adapt =
   async (event) => {
     const request: Request = {
       headers: removeUndefined(event.headers),
-      path: removeUndefined(event.pathParameters ?? {}),
+      params: removeUndefined(event.pathParameters ?? {}),
       query: removeUndefined(event.queryStringParameters ?? {}),
       body: event.body !== undefined ? JSON.parse(event.body) : {},
     };
@@ -193,6 +203,27 @@ export const findProducts: APIGatewayProxyHandlerV2 = adapt(
   ),
 );
 
+export const findOneProduct: APIGatewayProxyHandlerV2 = adapt(
+  auth(
+    new FindOneProductController(
+      new AjvValidationAdapter<FindOneProductRequest>({
+        type: "object",
+        required: ["params"],
+        properties: {
+          params: {
+            type: "object",
+            required: ["productId"],
+            properties: {
+              productId: { type: "string", pattern: "[0-9]+" },
+            },
+          },
+        },
+      }),
+      productKnexRepository,
+    ),
+  ),
+);
+
 export const createProduct: APIGatewayProxyHandlerV2 = adapt(
   auth(
     new CreateProductController(
@@ -200,6 +231,35 @@ export const createProduct: APIGatewayProxyHandlerV2 = adapt(
         type: "object",
         required: ["body"],
         properties: {
+          body: {
+            type: "object",
+            required: ["name", "value"],
+            properties: {
+              name: { type: "string", minLength: 1, maxLength: 24 },
+              value: { type: "integer", minimum: 1, maximum: 99999 },
+            },
+          },
+        },
+      }),
+      productKnexRepository,
+    ),
+  ),
+);
+
+export const updateProduct: APIGatewayProxyHandlerV2 = adapt(
+  auth(
+    new UpdateProductController(
+      new AjvValidationAdapter<UpdateProductRequest>({
+        type: "object",
+        required: ["params", "body"],
+        properties: {
+          params: {
+            type: "object",
+            required: ["productId"],
+            properties: {
+              productId: { type: "string", pattern: "[0-9]+" },
+            },
+          },
           body: {
             type: "object",
             required: ["name", "value"],

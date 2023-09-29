@@ -34,7 +34,7 @@ describe("CreateProductController", () => {
   beforeEach(() => {
     name = Math.random().toString(36).substring(2);
     value = Number(Math.random().toString().substring(2));
-    request = { headers: {}, path: {}, query: {}, body: { name, value } };
+    request = { headers: {}, params: {}, query: {}, body: { name, value } };
 
     validationSpy = new ValidationSpy();
     createProductRepositorySpy = new CreateProductRepositorySpy();

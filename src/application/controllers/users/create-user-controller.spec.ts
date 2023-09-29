@@ -56,7 +56,7 @@ describe("CreateUserController", () => {
 
     request = {
       headers: { "x-api-key": API_KEY },
-      path: {},
+      params: {},
       query: {},
       body: { username, password },
     };

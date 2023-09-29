@@ -38,7 +38,7 @@ describe("AccessTokenDecorator", () => {
 
     request = {
       headers: { "x-access-token": accessToken },
-      path: {},
+      params: {},
       query: {},
       body: {},
     };

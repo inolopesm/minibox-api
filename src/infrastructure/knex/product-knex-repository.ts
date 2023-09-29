@@ -3,7 +3,9 @@ import type { Product } from "../../application/entities/product";
 import type {
   CreateProductRepository,
   FindLikeNameProductRepository,
+  FindOneByIdProductRepository,
   FindProductRepository,
+  UpdateNameAndValueByIdProductRepository,
 } from "../../application/repositories/product-repository";
 
 import type { Knex } from "knex";
@@ -12,7 +14,9 @@ export class ProductKnexRepository
   implements
     FindProductRepository,
     FindLikeNameProductRepository,
-    CreateProductRepository
+    FindOneByIdProductRepository,
+    CreateProductRepository,
+    UpdateNameAndValueByIdProductRepository
 {
   constructor(private readonly knex: Knex) {}
 
@@ -26,7 +30,25 @@ export class ProductKnexRepository
       .orderBy("id");
   }
 
+  async findOneById(id: number): Promise<Product | null> {
+    const row = await this.knex<Product>("Product").where({ id }).first();
+    if (row === undefined) return null;
+    return row;
+  }
+
   async create(name: string, value: number): Promise<void> {
     await this.knex<Product>("Product").insert({ name, value });
+  }
+
+  async updateNameAndValueById({
+    name,
+    value,
+    id,
+  }: {
+    name: string;
+    value: number;
+    id: number;
+  }): Promise<void> {
+    await this.knex<Product>("Product").update({ name, value }).where({ id });
   }
 }

@@ -62,3 +62,15 @@ functions:
   updateTeam:
     handler: src/main.updateTeam
     events: [ httpApi: 'PUT /teams/{teamId}' ]
+  findPeople:
+    handler: src/main.findPeople
+    events: [ httpApi: GET /people ]
+  findOnePerson:
+    handler: src/main.findOnePerson
+    events: [ httpApi: 'GET /people/{personId}' ]
+  createPerson:
+    handler: src/main.createPerson
+    events: [ httpApi: POST /people ]
+  updatePerson:
+    handler: src/main.updatePerson
+    events: [ httpApi: 'PUT /people/{personId}' ]

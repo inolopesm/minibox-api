@@ -2,6 +2,26 @@ import Ajv from "ajv";
 import Knex from "knex";
 
 import {
+  CreatePersonController,
+  type CreatePersonRequest,
+} from "./application/controllers/people/create-person-controller";
+
+import {
+  FindOnePersonController,
+  type FindOnePersonRequest,
+} from "./application/controllers/people/find-one-person-controller";
+
+import {
+  FindPersonController,
+  type FindPersonRequest,
+} from "./application/controllers/people/find-person-controller";
+
+import {
+  UpdatePersonController,
+  type UpdatePersonRequest,
+} from "./application/controllers/people/update-person-controller";
+
+import {
   CreateProductController,
   type CreateProductRequest,
 } from "./application/controllers/products/create-product-controller";
@@ -58,6 +78,7 @@ import {
 
 import { JWT } from "./application/utils/jwt";
 import { AjvValidationAdapter } from "./infrastructure/ajv/ajv-validation-adapter";
+import { PersonKnexRepository } from "./infrastructure/knex/person-knex-repository";
 import { ProductKnexRepository } from "./infrastructure/knex/product-knex-repository";
 import { TeamKnexRepository } from "./infrastructure/knex/team-knex-repository";
 import { UserKnexRepository } from "./infrastructure/knex/user-knex-repository";
@@ -122,6 +143,7 @@ const jwt = new JWT(env.SECRET);
 const userKnexRepository = new UserKnexRepository(knex);
 const productKnexRepository = new ProductKnexRepository(knex);
 const teamKnexRepository = new TeamKnexRepository(knex);
+const personKnexRepository = new PersonKnexRepository(knex);
 
 const auth = (controller: Controller): Controller =>
   new AccessTokenDecorator(
@@ -384,6 +406,102 @@ export const updateTeam: APIGatewayProxyHandlerV2 = adapt(
         },
       }),
       teamKnexRepository,
+    ),
+  ),
+);
+
+export const findPeople: APIGatewayProxyHandlerV2 = adapt(
+  auth(
+    new FindPersonController(
+      new AjvValidationAdapter<FindPersonRequest>({
+        type: "object",
+        required: ["query"],
+        properties: {
+          query: {
+            type: "object",
+            properties: {
+              name: { type: "string", maxLength: 24, nullable: true },
+              teamId: { type: "string", pattern: "[0-9]+", nullable: true },
+            },
+          },
+        },
+      }),
+      personKnexRepository,
+      personKnexRepository,
+    ),
+  ),
+);
+
+export const findOnePerson: APIGatewayProxyHandlerV2 = adapt(
+  auth(
+    new FindOnePersonController(
+      new AjvValidationAdapter<FindOnePersonRequest>({
+        type: "object",
+        required: ["params"],
+        properties: {
+          params: {
+            type: "object",
+            required: ["personId"],
+            properties: {
+              personId: { type: "string", pattern: "[0-9]+" },
+            },
+          },
+        },
+      }),
+      personKnexRepository,
+    ),
+  ),
+);
+
+export const createPerson: APIGatewayProxyHandlerV2 = adapt(
+  auth(
+    new CreatePersonController(
+      new AjvValidationAdapter<CreatePersonRequest>({
+        type: "object",
+        required: ["body"],
+        properties: {
+          body: {
+            type: "object",
+            required: ["name", "teamId"],
+            properties: {
+              name: { type: "string", minLength: 1, maxLength: 24 },
+              teamId: { type: "integer", minimum: 1 },
+            },
+          },
+        },
+      }),
+      teamKnexRepository,
+      personKnexRepository,
+    ),
+  ),
+);
+
+export const updatePerson: APIGatewayProxyHandlerV2 = adapt(
+  auth(
+    new UpdatePersonController(
+      new AjvValidationAdapter<UpdatePersonRequest>({
+        type: "object",
+        required: ["params", "body"],
+        properties: {
+          params: {
+            type: "object",
+            required: ["personId"],
+            properties: {
+              personId: { type: "string", pattern: "[0-9]+" },
+            },
+          },
+          body: {
+            type: "object",
+            required: ["name", "teamId"],
+            properties: {
+              name: { type: "string", minLength: 1, maxLength: 24 },
+              teamId: { type: "integer", minimum: 1 },
+            },
+          },
+        },
+      }),
+      teamKnexRepository,
+      personKnexRepository,
     ),
   ),
 );

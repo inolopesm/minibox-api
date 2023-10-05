@@ -4,16 +4,14 @@ include:
 services:
   test-runner:
     build: .
-    command: npx jest -i -c jest.integration.config.js
+    command: node -r dotenv/config node_modules/jest/bin/jest.js -i -c jest.integration.config.js
     environment:
-      - SECRET
-      - POSTGRES_URL
-      - API_KEY
       - TEST_BASE_URL=http://app:3000
     volumes:
       - ./src:/home/node/app/src
       - ./jest.integration.setup.js:/home/node/app/jest.integration.setup.js
       - ./jest.integration.config.js:/home/node/app/jest.integration.config.js
+      - ./.env:/home/node/app/.env
     depends_on:
       app:
         condition: service_healthy

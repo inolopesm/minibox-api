@@ -1,0 +1,9 @@
+{
+  "editor.codeActionsOnSave": { "source.fixAll.eslint": true },
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
+  "[typescript]": { "editor.formatOnSave": true },
+  "typescript.tsdk": "node_modules/typescript/lib",
+  "material-icon-theme.files.associations": { "*.mock.ts": "test-ts" },
+  "workbench.iconTheme": "material-icon-theme",
+  "editor.tabSize": 2
+}

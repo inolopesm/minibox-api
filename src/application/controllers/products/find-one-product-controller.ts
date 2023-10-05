@@ -1,11 +1,5 @@
-import type {
-  Controller,
-  Request,
-  Response,
-  Validation,
-} from "../../protocols";
-
-import type { FindOneByIdProductRepository } from "../../repositories";
+import { Controller, Request, Response, Validation } from "../../protocols";
+import { FindOneByIdProductRepository } from "../../repositories";
 
 export interface FindOneProductRequest {
   params: { productId: string };

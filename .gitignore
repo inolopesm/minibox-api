@@ -6,8 +6,7 @@ jspm_packages
 .serverless
 
 # Environment variables
-.env.*
-!.env.example
+.env
 
 # Typescript Output
 .build

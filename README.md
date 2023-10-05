@@ -13,26 +13,24 @@ O `minibox-api` é o lado backend do [minibox](https://github.com/inolopesm/mini
 1. Clone o repositório: `git clone git@github.com:inolopesm/minibox-api.git`
 2. Acesse o diretório: `cd minibox-api`
 3. Instale as dependências: `npm install`
-3. Instale o pacote serverless de forma global: `npm install --global serverless`
 
 ## Configuração
 
 ### Desenvolvimento
 
-1. Crie o arquivo de configuração: `cp .env.example .env.local`
+1. Crie o arquivo de configuração: `cp .env.example .env`
 2. Preencha o `.env.local` com os valores corretos
 
 ### Produção
 
-1. Crie o arquivo de configuração: `cp .env.example .env.production`
-2. Preencha o `.env.production` com os valores corretos
-3. Altere o domínio customizado dentro do `serverless.yml` se for necessário
+1. Crie as variáveis de ambiente de acordo com `.env.example`
+2. Altere o domínio customizado dentro do `serverless.yml` se for necessário
 
 ## Usagem
 
 ### Desenvolvimento
 
-1. Execute o projeto em modo de desenvolvimento: `npm run sls:offline`
+1. Execute o projeto em modo de desenvolvimento: `npm run dev`
 
 ### Produção
 

@@ -6,6 +6,9 @@
   "settings": { "import/resolver": { "typescript": true, "node": true } },
   "rules": {
     "no-shadow": "error",
+    "sort-imports": ["error", { "ignoreDeclarationSort": true }],
+    "@typescript-eslint/consistent-type-imports": ["error", { "prefer": "no-type-imports" }],
+    "@typescript-eslint/method-signature-style": ["error", "method"],
     "import/order": ["error", {
       "groups": ["builtin", "external", "internal", "parent", "sibling", "index", "object", "type"],
       "alphabetize": { "order": "asc" }

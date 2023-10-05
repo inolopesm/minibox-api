@@ -1,12 +1,6 @@
-import type {
-  Controller,
-  Request,
-  Response,
-  Validation,
-} from "../../protocols";
-
-import type { FindOneByUsernameAndPasswordUserRepository } from "../../repositories";
-import type { JWT } from "../../utils";
+import { Controller, Request, Response, Validation } from "../../protocols";
+import { FindOneByUsernameAndPasswordUserRepository } from "../../repositories";
+import { Jwt } from "../../utils";
 
 export interface CreateSessionRequest {
   body: { username: string; password: string };
@@ -16,7 +10,7 @@ export class CreateSessionController implements Controller {
   constructor(
     private readonly validation: Validation,
     private readonly findOneByUsernameAndPasswordUserRepository: FindOneByUsernameAndPasswordUserRepository,
-    private readonly jwt: JWT,
+    private readonly jwt: Jwt,
   ) {}
 
   async handle(request: Request): Promise<Response> {

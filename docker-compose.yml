@@ -1,0 +1,25 @@
+services:
+  db:
+    image: postgres:15.4-bookworm
+    environment:
+      - POSTGRES_PASSWORD=docker
+      - POSTGRES_DB=minibox
+    healthcheck:
+      test: pg_isready -U postgres
+      interval: 5s
+      timeout: 5s
+      retries: 5
+  app:
+    build: .
+    command: sh -c "npm run knex -- migrate:latest && npm run sls:offline"
+    ports: [ 3000:3000 ]
+    volumes:
+      - ./src:/home/node/app/src
+      - ./serverless.yml:/home/node/app/serverless.yml
+      - ./knexfile.js:/home/node/app/knexfile.js
+      - ./.env:/home/node/app/.env
+    depends_on:
+      db:
+        condition: service_healthy
+    healthcheck:
+      test: curl --fail http://app:3000 || exit 1

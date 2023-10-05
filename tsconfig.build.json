@@ -2,7 +2,9 @@
   "extends": "./tsconfig.json",
   "exclude": [
     "node_modules",
-    "**/*.spec.ts",
-    "**/migrations/*.ts"
+    "src/**/*.spec.ts",
+    "src/**/*.test.ts",
+    "src/**/*.mock.ts",
+    "src/infrastructure/migrations/*.ts"
   ]
 }

@@ -1,11 +1,5 @@
-import type {
-  Controller,
-  Request,
-  Response,
-  Validation,
-} from "../../protocols";
-
-import type { CreateProductRepository } from "../../repositories";
+import { Controller, Request, Response, Validation } from "../../protocols";
+import { CreateProductRepository } from "../../repositories";
 
 export interface CreateProductRequest {
   body: { name: string; value: number };

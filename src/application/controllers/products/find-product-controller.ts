@@ -1,11 +1,5 @@
-import type {
-  Controller,
-  Request,
-  Response,
-  Validation,
-} from "../../protocols";
-
-import type { FindLikeNameProductRepository } from "../../repositories";
+import { Controller, Request, Response, Validation } from "../../protocols";
+import { FindLikeNameProductRepository } from "../../repositories";
 
 export interface FindProductRequest {
   query: { name?: string };

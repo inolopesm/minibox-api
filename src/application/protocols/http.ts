@@ -11,5 +11,5 @@ export interface Response {
 }
 
 export interface Controller {
-  handle: (request: Request) => Promise<Response>;
+  handle(request: Request): Promise<Response>;
 }

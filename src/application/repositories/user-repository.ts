@@ -1,16 +1,16 @@
-import type { User } from "../entities/user";
+import { User } from "../entities/user";
 
 export interface FindOneByUsernameAndPasswordUserRepository {
-  findOneByUsernameAndPassword: (
+  findOneByUsernameAndPassword(
     username: string,
     password: string,
-  ) => Promise<User | null>;
+  ): Promise<User | null>;
 }
 
 export interface CreateUserRepository {
-  create: (username: string, password: string) => Promise<void>;
+  create(username: string, password: string): Promise<void>;
 }
 
 export interface CountByUsernameUserRepository {
-  countByUsername: (username: string) => Promise<number>;
+  countByUsername(username: string): Promise<number>;
 }

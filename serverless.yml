@@ -18,7 +18,10 @@ plugins:
 
 package:
   patterns:
-    - '!**/migrations/*'
+    - '!src/infrastructure/migrations/**'
+    - '!src/**/*.spec.js'
+    - '!src/**/*.test.js'
+    - '!src/**/*.mock.js'
 
 custom:
   serverlessPluginTypescript:
@@ -83,6 +86,6 @@ functions:
   createInvoice:
     handler: src/main.createInvoice
     events: [ httpApi: POST /invoices ]
-  updateInvoice:
-    handler: src/main.updateInvoice
-    events: [ httpApi: 'PUT /invoices/{invoiceId}' ]
+  payInvoice:
+    handler: src/main.payInvoice
+    events: [ httpApi: 'PUT /invoices/{invoiceId}/pay' ]

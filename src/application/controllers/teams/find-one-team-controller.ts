@@ -1,11 +1,5 @@
-import type {
-  Controller,
-  Request,
-  Response,
-  Validation,
-} from "../../protocols";
-
-import type { FindOneByIdTeamRepository } from "../../repositories";
+import { Controller, Request, Response, Validation } from "../../protocols";
+import { FindOneByIdTeamRepository } from "../../repositories";
 
 export interface FindOneTeamRequest {
   params: { teamId: string };

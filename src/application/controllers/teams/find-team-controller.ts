@@ -1,11 +1,5 @@
-import type {
-  Controller,
-  Request,
-  Response,
-  Validation,
-} from "../../protocols";
-
-import type { FindLikeNameTeamRepository } from "../../repositories/team-repository";
+import { Controller, Request, Response, Validation } from "../../protocols";
+import { FindLikeNameTeamRepository } from "../../repositories/team-repository";
 
 export interface FindTeamRequest {
   query: { name?: string };

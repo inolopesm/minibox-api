@@ -1,13 +1,8 @@
-import type {
-  Controller,
-  Request,
-  Response,
-  Validation,
-} from "../../protocols";
+import { Controller, Request, Response, Validation } from "../../protocols";
 
-import type {
-  CreateUserRepository,
+import {
   CountByUsernameUserRepository,
+  CreateUserRepository,
 } from "../../repositories/user-repository";
 
 export interface CreateUserRequest {

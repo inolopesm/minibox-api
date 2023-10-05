@@ -1,6 +1,6 @@
-import { JWT } from "../utils";
+import { Controller, Request, Response, Validation } from "../protocols";
+import { Jwt } from "../utils";
 import { AccessTokenDecorator } from "./access-token-decorator";
-import type { Controller, Request, Response, Validation } from "../protocols";
 
 const SECRET = Math.random().toString(36).substring(2);
 
@@ -30,7 +30,7 @@ describe("AccessTokenDecorator", () => {
   let controllerSpy: ControllerSpy;
   let validationSpy: ValidationSpy;
   let accessTokenDecorator: AccessTokenDecorator;
-  const jwt = new JWT(SECRET);
+  const jwt = new Jwt(SECRET);
 
   beforeEach(() => {
     accessToken = jwt.sign({ sub: 123 });

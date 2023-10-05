@@ -1,11 +1,5 @@
-import type {
-  Controller,
-  Request,
-  Response,
-  Validation,
-} from "../../protocols";
-
-import type { UpdateNameByIdTeamRepository } from "../../repositories";
+import { Controller, Request, Response, Validation } from "../../protocols";
+import { UpdateNameByIdTeamRepository } from "../../repositories";
 
 export interface UpdateTeamRequest {
   params: { teamId: string };

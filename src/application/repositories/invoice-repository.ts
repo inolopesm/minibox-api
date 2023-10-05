@@ -1,35 +1,35 @@
-import type { Invoice, InvoiceProduct, Person, Team } from "../entities";
+import { Invoice, InvoiceProduct, Person, Team } from "../entities";
 
-export type InvoiceDTO = Invoice & {
+export type InvoiceDto = Invoice & {
   products: InvoiceProduct[];
   person: Person & { team: Team };
 };
 
 export interface FindInvoiceRepository {
-  find: () => Promise<InvoiceDTO[]>;
+  find(): Promise<InvoiceDto[]>;
 }
 
 export interface FindByTeamIdInvoiceRepository {
-  findByTeamId: (teamId: number) => Promise<InvoiceDTO[]>;
+  findByTeamId(teamId: number): Promise<InvoiceDto[]>;
 }
 
 export interface FindByPersonIdInvoiceRepository {
-  findByPersonId: (personId: number) => Promise<InvoiceDTO[]>;
+  findByPersonId(personId: number): Promise<InvoiceDto[]>;
 }
 
 export interface FindByPaidAtInvoiceRepository {
-  findByPaidAt: (paidAt: number | null | true) => Promise<InvoiceDTO[]>;
+  findByPaidAt(paidAt: number | null | true): Promise<InvoiceDto[]>;
 }
 
 export interface FindByTeamIdAndPersonIdInvoiceRepository {
-  findByTeamIdAndPersonId: (
+  findByTeamIdAndPersonId(
     teamId: number,
     personId: number,
-  ) => Promise<InvoiceDTO[]>;
+  ): Promise<InvoiceDto[]>;
 }
 
 export interface FindByTeamIdAndPersonIdAndPaidAtInvoiceRepository {
-  findByTeamIdAndPersonIdAndPaidAt: ({
+  findByTeamIdAndPersonIdAndPaidAt({
     teamId,
     personId,
     paidAt,
@@ -37,29 +37,29 @@ export interface FindByTeamIdAndPersonIdAndPaidAtInvoiceRepository {
     teamId: number;
     personId: number;
     paidAt: number | null | true;
-  }) => Promise<InvoiceDTO[]>;
+  }): Promise<InvoiceDto[]>;
 }
 
 export interface FindByTeamIdAndPaidAtInvoiceRepository {
-  findByTeamIdAndPaidAt: (
+  findByTeamIdAndPaidAt(
     teamId: number,
     paidAt: number | null | true,
-  ) => Promise<InvoiceDTO[]>;
+  ): Promise<InvoiceDto[]>;
 }
 
 export interface FindByPersonIdAndPaidAtInvoiceRepository {
-  findByPersonIdAndPaidAt: (
+  findByPersonIdAndPaidAt(
     personId: number,
     paidAt: number | null | true,
-  ) => Promise<InvoiceDTO[]>;
+  ): Promise<InvoiceDto[]>;
 }
 
 export interface FindOneByIdInvoiceRepository {
-  findOneById: (id: number) => Promise<InvoiceDTO | null>;
+  findOneById(id: number): Promise<InvoiceDto | null>;
 }
 
 export interface CreateInvoiceRepository {
-  create: ({
+  create({
     personId,
     createdAt,
     products,
@@ -67,9 +67,9 @@ export interface CreateInvoiceRepository {
     personId: number;
     createdAt: number;
     products: Array<{ name: string; value: number }>;
-  }) => Promise<void>;
+  }): Promise<void>;
 }
 
 export interface UpdatePaidAtByIdInvoiceRepository {
-  updatePaidAtById: (paidAt: number | null, id: number) => Promise<void>;
+  updatePaidAtById(paidAt: number | null, id: number): Promise<void>;
 }

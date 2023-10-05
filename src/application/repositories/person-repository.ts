@@ -1,27 +1,27 @@
-import type { Person } from "../entities/person";
-import type { Team } from "../entities/team";
+import { Person } from "../entities/person";
+import { Team } from "../entities/team";
 
 export interface FindLikeNamePersonRepository {
-  findLikeName: (name: string) => Promise<Array<Person & { team: Team }>>;
+  findLikeName(name: string): Promise<Array<Person & { team: Team }>>;
 }
 
 export interface FindLikeNameAndTeamIdPersonRepository {
-  findLikeNameAndTeamId: (
+  findLikeNameAndTeamId(
     name: string,
     teamId: number,
-  ) => Promise<Array<Person & { team: Team }>>;
+  ): Promise<Array<Person & { team: Team }>>;
 }
 
 export interface CreatePersonRepository {
-  create: (name: string, teamId: number) => Promise<void>;
+  create(name: string, teamId: number): Promise<void>;
 }
 
 export interface FindOneByIdPersonRepository {
-  findOneById: (id: number) => Promise<Person | null>;
+  findOneById(id: number): Promise<Person | null>;
 }
 
 export interface UpdateNameAndTeamIdByIdPersonRepository {
-  updateNameAndTeamIdById: ({
+  updateNameAndTeamIdById({
     name,
     teamId,
     id,
@@ -29,5 +29,5 @@ export interface UpdateNameAndTeamIdByIdPersonRepository {
     name: string;
     teamId: number;
     id: number;
-  }) => Promise<void>;
+  }): Promise<void>;
 }

@@ -1,13 +1,8 @@
-import type {
-  Controller,
-  Request,
-  Response,
-  Validation,
-} from "../../protocols";
+import { Controller, Request, Response, Validation } from "../../protocols";
 
-import type {
-  UpdateNameAndTeamIdByIdPersonRepository,
+import {
   FindOneByIdTeamRepository,
+  UpdateNameAndTeamIdByIdPersonRepository,
 } from "../../repositories";
 
 export interface UpdatePersonRequest {

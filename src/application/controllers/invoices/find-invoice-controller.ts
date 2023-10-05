@@ -1,20 +1,15 @@
-import type {
-  Controller,
-  Request,
-  Response,
-  Validation,
-} from "../../protocols";
+import { Controller, Request, Response, Validation } from "../../protocols";
 
-import type {
-  FindByTeamIdAndPersonIdAndPaidAtInvoiceRepository,
-  FindByTeamIdAndPersonIdInvoiceRepository,
-  FindByTeamIdAndPaidAtInvoiceRepository,
-  FindByTeamIdInvoiceRepository,
+import {
+  FindByPaidAtInvoiceRepository,
   FindByPersonIdAndPaidAtInvoiceRepository,
   FindByPersonIdInvoiceRepository,
-  FindByPaidAtInvoiceRepository,
+  FindByTeamIdAndPaidAtInvoiceRepository,
+  FindByTeamIdAndPersonIdAndPaidAtInvoiceRepository,
+  FindByTeamIdAndPersonIdInvoiceRepository,
+  FindByTeamIdInvoiceRepository,
   FindInvoiceRepository,
-  InvoiceDTO,
+  InvoiceDto,
 } from "../../repositories";
 
 export interface FindInvoiceRequest {
@@ -53,7 +48,7 @@ export class FindInvoiceController implements Controller {
 
     const paidAt = paid === false ? null : paid;
 
-    let invoices: InvoiceDTO[];
+    let invoices: InvoiceDto[];
 
     // prettier-ignore
     if (teamId !== undefined && personId !== undefined && paidAt !== undefined)

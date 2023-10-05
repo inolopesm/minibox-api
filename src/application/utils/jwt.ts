@@ -1,7 +1,7 @@
 import * as crypto from "node:crypto";
 import { SafeJSON } from "./safe-json";
 
-export class JWT {
+export class Jwt {
   constructor(private readonly secret: string) {}
 
   sign(payload: Record<string, unknown>): string {

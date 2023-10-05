@@ -1,56 +1,28 @@
-import { JWT } from "../../utils";
-import { CreateSessionController } from "./create-session-controller";
-import type { User } from "../../entities";
-import type { Request, Response, Validation } from "../../protocols";
-import type { FindOneByUsernameAndPasswordUserRepository } from "../../repositories";
+import { randomUUID } from "node:crypto";
+import { User } from "../../entities";
+import { makeUser } from "../../entities/user.mock";
+import { Request, Response } from "../../protocols";
+import { FindOneByUsernameAndPasswordUserRepositorySpy } from "../../repositories/user-repository.mock";
+import { Jwt } from "../../utils";
+import { ValidationSpy } from "../../validations/validation.mock";
 
-const SECRET = Math.random().toString(36).substring(2);
-
-class ValidationSpy implements Validation {
-  input?: unknown;
-  result: Error | null = null;
-
-  validate(input: unknown): Error | null {
-    this.input = input;
-    return this.result;
-  }
-}
-
-class FindOneByUsernameAndPasswordUserRepositorySpy
-  implements FindOneByUsernameAndPasswordUserRepository
-{
-  username?: string;
-  password?: string;
-  result: User | null;
-
-  constructor(user: User) {
-    this.result = user;
-  }
-
-  async findOneByUsernameAndPassword(
-    username: string,
-    password: string,
-  ): Promise<User | null> {
-    this.username = username;
-    this.password = password;
-    return this.result;
-  }
-}
+import {
+  CreateSessionController,
+  CreateSessionRequest,
+} from "./create-session-controller";
 
 describe("CreateSessionController", () => {
   let user: User;
-  let request: Request;
+  let secret: string;
+  let request: Request & CreateSessionRequest;
   let validationSpy: ValidationSpy;
   let findOneByUsernameAndPasswordUserRepositorySpy: FindOneByUsernameAndPasswordUserRepositorySpy;
-  let jwt: JWT;
+  let jwt: Jwt;
   let createSessionController: CreateSessionController;
 
   beforeEach(() => {
-    user = {
-      id: Number(Math.random().toString().substring(2)),
-      username: "username" + Math.random().toString(36).substring(2),
-      password: Math.random().toString(36).substring(2),
-    };
+    user = makeUser();
+    secret = randomUUID();
 
     request = {
       headers: {},
@@ -62,9 +34,11 @@ describe("CreateSessionController", () => {
     validationSpy = new ValidationSpy();
 
     findOneByUsernameAndPasswordUserRepositorySpy =
-      new FindOneByUsernameAndPasswordUserRepositorySpy(user);
+      new FindOneByUsernameAndPasswordUserRepositorySpy();
 
-    jwt = new JWT(SECRET);
+    findOneByUsernameAndPasswordUserRepositorySpy.result = user;
+
+    jwt = new Jwt(secret);
 
     createSessionController = new CreateSessionController(
       validationSpy,
@@ -73,19 +47,7 @@ describe("CreateSessionController", () => {
     );
   });
 
-  it("should return an access token when given valid credentials", async () => {
-    const response = await createSessionController.handle(request);
-    const { id: sub, username } = user;
-
-    const expectedResponse: Response = {
-      statusCode: 200,
-      body: { accessToken: jwt.sign({ sub, username }) },
-    };
-
-    expect(response).toEqual(expectedResponse);
-  });
-
-  it("should return an error when validation fails", async () => {
+  it("should fail when validation fails", async () => {
     const error = new Error("validation failed");
     validationSpy.result = error;
 
@@ -99,13 +61,26 @@ describe("CreateSessionController", () => {
     expect(response).toEqual(expectedResponse);
   });
 
-  it("should return an error when given invalid credentials", async () => {
+  it("should fail when user or password is invalid", async () => {
     findOneByUsernameAndPasswordUserRepositorySpy.result = null;
     const response = await createSessionController.handle(request);
 
     const expectedResponse: Response = {
       statusCode: 400,
       body: { message: "Usuário e/ou senha inválido(s)" },
+    };
+
+    expect(response).toEqual(expectedResponse);
+  });
+
+  it("should create session successfully", async () => {
+    const response = await createSessionController.handle(request);
+
+    const expectedResponse: Response = {
+      statusCode: 200,
+      body: {
+        accessToken: jwt.sign({ sub: user.id, username: user.username }),
+      },
     };
 
     expect(response).toEqual(expectedResponse);

@@ -1,63 +1,38 @@
-import { CreateUserController } from "./create-user-controller";
-import type { Request, Response, Validation } from "../../protocols";
+import { randomUUID } from "node:crypto";
+import { User } from "../../entities";
+import { makeUser } from "../../entities/user.mock";
+import { Request, Response } from "../../protocols";
 
-import type {
-  CountByUsernameUserRepository,
-  CreateUserRepository,
-} from "../../repositories/user-repository";
+import {
+  CountByUsernameUserRepositorySpy,
+  CreateUserRepositorySpy,
+} from "../../repositories/user-repository.mock";
 
-const API_KEY = Math.random().toString(36).substring(2);
+import { ValidationSpy } from "../../validations/validation.mock";
 
-class ValidationSpy implements Validation {
-  input?: unknown;
-  result: Error | null = null;
-
-  validate(input: unknown): Error | null {
-    this.input = input;
-    return this.result;
-  }
-}
-
-class CountByUsernameUserRepositorySpy
-  implements CountByUsernameUserRepository
-{
-  username?: string;
-  result = 0;
-
-  async countByUsername(username: string): Promise<number> {
-    this.username = username;
-    return this.result;
-  }
-}
-
-class CreateUserRepositorySpy implements CreateUserRepository {
-  username?: string;
-  password?: string;
-
-  async create(username: string, password: string): Promise<void> {
-    this.username = username;
-    this.password = password;
-  }
-}
+import {
+  CreateUserController,
+  CreateUserRequest,
+} from "./create-user-controller";
 
 describe("CreateUserController", () => {
-  let username: string;
-  let password: string;
-  let request: Request;
+  let user: User;
+  let request: Request & CreateUserRequest;
   let validationSpy: ValidationSpy;
+  let apiKey: string;
   let countByUsernameUserRepositorySpy: CountByUsernameUserRepositorySpy;
   let createUserRepositorySpy: CreateUserRepositorySpy;
   let createUserController: CreateUserController;
 
   beforeEach(() => {
-    username = "username" + Math.random().toString(36).substring(2);
-    password = Math.random().toString(36).substring(2);
+    user = makeUser();
+    apiKey = randomUUID();
 
     request = {
-      headers: { "x-api-key": API_KEY },
+      headers: { "x-api-key": apiKey },
       params: {},
       query: {},
-      body: { username, password },
+      body: { username: user.username, password: user.password },
     };
 
     validationSpy = new ValidationSpy();
@@ -66,21 +41,13 @@ describe("CreateUserController", () => {
 
     createUserController = new CreateUserController(
       validationSpy,
-      API_KEY,
+      apiKey,
       countByUsernameUserRepositorySpy,
       createUserRepositorySpy,
     );
   });
 
-  it("should create a new user when username is not taken", async () => {
-    const response = await createUserController.handle(request);
-    const expectedResponse: Response = { statusCode: 200 };
-    expect(response).toEqual(expectedResponse);
-    expect(createUserRepositorySpy.username).toBe(username);
-    expect(createUserRepositorySpy.password).toBe(password);
-  });
-
-  it("should return an error when validation fails", async () => {
+  it("should fail when validation fails", async () => {
     const error = new Error("validation failed");
     validationSpy.result = error;
 
@@ -94,8 +61,8 @@ describe("CreateUserController", () => {
     expect(response).toEqual(expectedResponse);
   });
 
-  it("should return an error when api key is invalid", async () => {
-    request.headers["x-api-key"] = Math.random().toString(36).substring(2);
+  it("should fail when API key is invalid", async () => {
+    request.headers["x-api-key"] = randomUUID();
     const response = await createUserController.handle(request);
 
     const expectedResponse: Response = {
@@ -106,7 +73,7 @@ describe("CreateUserController", () => {
     expect(response).toEqual(expectedResponse);
   });
 
-  it("should return an error when username is already taken", async () => {
+  it("should fail when username already exists", async () => {
     countByUsernameUserRepositorySpy.result = 1;
     const response = await createUserController.handle(request);
 
@@ -116,5 +83,13 @@ describe("CreateUserController", () => {
     };
 
     expect(response).toEqual(expectedResponse);
+  });
+
+  it("should create user successfully", async () => {
+    const response = await createUserController.handle(request);
+    const expectedResponse: Response = { statusCode: 200 };
+    expect(response).toEqual(expectedResponse);
+    expect(createUserRepositorySpy.username).toBe(user.username);
+    expect(createUserRepositorySpy.password).toBe(user.password);
   });
 });

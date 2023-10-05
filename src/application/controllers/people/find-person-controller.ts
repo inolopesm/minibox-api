@@ -1,11 +1,6 @@
-import type {
-  Controller,
-  Request,
-  Response,
-  Validation,
-} from "../../protocols";
+import { Controller, Request, Response, Validation } from "../../protocols";
 
-import type {
+import {
   FindLikeNameAndTeamIdPersonRepository,
   FindLikeNamePersonRepository,
 } from "../../repositories/person-repository";

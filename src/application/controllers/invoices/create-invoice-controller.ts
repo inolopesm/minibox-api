@@ -1,13 +1,8 @@
-import type {
-  Controller,
-  Request,
-  Response,
-  Validation,
-} from "../../protocols";
+import { Controller, Request, Response, Validation } from "../../protocols";
 
-import type {
-  FindOneByIdPersonRepository,
+import {
   CreateInvoiceRepository,
+  FindOneByIdPersonRepository,
 } from "../../repositories";
 
 export interface CreateInvoiceRequest {

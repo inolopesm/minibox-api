@@ -1,11 +1,5 @@
-import type {
-  Controller,
-  Request,
-  Response,
-  Validation,
-} from "../../protocols";
-
-import type { UpdateNameAndValueByIdProductRepository } from "../../repositories";
+import { Controller, Request, Response, Validation } from "../../protocols";
+import { UpdateNameAndValueByIdProductRepository } from "../../repositories";
 
 export interface UpdateProductRequest {
   params: { productId: string };

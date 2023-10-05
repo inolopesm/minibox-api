@@ -1,9 +1,9 @@
-import { JWT } from "./jwt";
+import { Jwt } from "./jwt";
 
 const SECRET = "cg3dcxwaakw";
 
-describe("JWT", () => {
-  const jwt = new JWT(SECRET);
+describe("Jwt", () => {
+  const jwt = new Jwt(SECRET);
   const payload = { some: "data" };
 
   const token =

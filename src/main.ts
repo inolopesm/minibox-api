@@ -1,89 +1,31 @@
-import Knex from "knex";
+import { APIGatewayProxyHandlerV2 } from "aws-lambda";
+import { adapt } from "./infrastructure/adapters";
+import { POSTGRES_URL } from "./infrastructure/configs";
 
 import {
-  CreatePersonController,
-  type CreatePersonRequest,
-  FindOnePersonController,
-  type FindOnePersonRequest,
-  FindPersonController,
-  type FindPersonRequest,
-  UpdatePersonController,
-  type UpdatePersonRequest,
-  CreateProductController,
-  type CreateProductRequest,
-  FindOneProductController,
-  type FindOneProductRequest,
-  FindProductController,
-  type FindProductRequest,
-  UpdateProductController,
-  type UpdateProductRequest,
-  CreateSessionController,
-  type CreateSessionRequest,
-  CreateTeamController,
-  type CreateTeamRequest,
-  FindOneTeamController,
-  type FindOneTeamRequest,
-  FindTeamController,
-  type FindTeamRequest,
-  UpdateTeamController,
-  type UpdateTeamRequest,
-  CreateUserController,
-  type CreateUserRequest,
-  CreateInvoiceController,
-  type CreateInvoiceRequest,
-  FindInvoiceController,
-  type FindInvoiceRequest,
-  FindOneInvoiceController,
-  type FindOneInvoiceRequest,
-  PayInvoiceController,
-  type PayInvoiceRequest,
-} from "./application/controllers";
+  makeCreateInvoiceController,
+  makeCreatePersonController,
+  makeCreateProductController,
+  makeCreateSessionController,
+  makeCreateTeamController,
+  makeCreateUserController,
+  makeFindInvoiceController,
+  makeFindOneInvoiceController,
+  makeFindOnePersonController,
+  makeFindOneProductController,
+  makeFindOneTeamController,
+  makeFindPersonController,
+  makeFindProductController,
+  makeFindTeamController,
+  makePayInvoiceController,
+  makeUpdatePersonController,
+  makeUpdateProductController,
+  makeUpdateTeamController,
+} from "./infrastructure/factories";
 
-import {
-  AccessTokenDecorator,
-  type AccessTokenRequest,
-} from "./application/decorators";
+import { KnexHelper } from "./infrastructure/helpers";
 
-import { JWT } from "./application/utils";
-import { AjvValidationAdapter } from "./infrastructure/ajv";
-import { env } from "./infrastructure/env";
-
-import {
-  PersonKnexRepository,
-  ProductKnexRepository,
-  TeamKnexRepository,
-  UserKnexRepository,
-  InvoiceKnexRepository,
-} from "./infrastructure/knex";
-
-import { adapt } from "./infrastructure/serverless";
-import type { Controller } from "./application/protocols";
-import type { APIGatewayProxyHandlerV2 } from "aws-lambda";
-
-const knex = Knex({ client: "pg", connection: env.POSTGRES_URL });
-const jwt = new JWT(env.SECRET);
-const userKnexRepository = new UserKnexRepository(knex);
-const productKnexRepository = new ProductKnexRepository(knex);
-const teamKnexRepository = new TeamKnexRepository(knex);
-const personKnexRepository = new PersonKnexRepository(knex);
-const invoiceKnexRepository = new InvoiceKnexRepository(knex);
-
-const auth = (controller: Controller): Controller =>
-  new AccessTokenDecorator(
-    controller,
-    new AjvValidationAdapter<AccessTokenRequest>({
-      type: "object",
-      required: ["headers"],
-      properties: {
-        headers: {
-          type: "object",
-          required: ["x-access-token"],
-          properties: { "x-access-token": { type: "string" } },
-        },
-      },
-    }),
-    jwt,
-  );
+KnexHelper.getInstance().connect(POSTGRES_URL);
 
 export const handler: APIGatewayProxyHandlerV2 = async (event) => {
   return {
@@ -99,436 +41,25 @@ export const handler: APIGatewayProxyHandlerV2 = async (event) => {
   };
 };
 
-export const createSession: APIGatewayProxyHandlerV2 = adapt(
-  new CreateSessionController(
-    new AjvValidationAdapter<CreateSessionRequest>({
-      type: "object",
-      required: ["body"],
-      properties: {
-        body: {
-          type: "object",
-          required: ["username", "password"],
-          properties: {
-            username: { type: "string", minLength: 1, maxLength: 24 },
-            password: { type: "string", minLength: 1, maxLength: 24 },
-          },
-        },
-      },
-    }),
-    userKnexRepository,
-    jwt,
-  ),
-);
+export const createSession = adapt(makeCreateSessionController());
+export const createUser = adapt(makeCreateUserController());
 
-export const createUser: APIGatewayProxyHandlerV2 = adapt(
-  new CreateUserController(
-    new AjvValidationAdapter<CreateUserRequest>({
-      type: "object",
-      required: ["headers", "body"],
-      properties: {
-        headers: {
-          type: "object",
-          required: ["x-api-key"],
-          properties: {
-            "x-api-key": { type: "string", minLength: 1, maxLength: 255 },
-          },
-        },
-        body: {
-          type: "object",
-          required: ["username", "password"],
-          properties: {
-            username: { type: "string", minLength: 1, maxLength: 24 },
-            password: { type: "string", minLength: 1, maxLength: 24 },
-          },
-        },
-      },
-    }),
-    env.API_KEY,
-    userKnexRepository,
-    userKnexRepository,
-  ),
-);
+export const findProducts = adapt(makeFindProductController());
+export const findOneProduct = adapt(makeFindOneProductController());
+export const createProduct = adapt(makeCreateProductController());
+export const updateProduct = adapt(makeUpdateProductController());
 
-export const findProducts: APIGatewayProxyHandlerV2 = adapt(
-  auth(
-    new FindProductController(
-      new AjvValidationAdapter<FindProductRequest>({
-        type: "object",
-        required: ["query"],
-        properties: {
-          query: {
-            type: "object",
-            properties: {
-              name: { type: "string", maxLength: 48, nullable: true },
-            },
-          },
-        },
-      }),
-      productKnexRepository,
-    ),
-  ),
-);
+export const findTeams = adapt(makeFindTeamController());
+export const findOneTeam = adapt(makeFindOneTeamController());
+export const createTeam = adapt(makeCreateTeamController());
+export const updateTeam = adapt(makeUpdateTeamController());
 
-export const findOneProduct: APIGatewayProxyHandlerV2 = adapt(
-  auth(
-    new FindOneProductController(
-      new AjvValidationAdapter<FindOneProductRequest>({
-        type: "object",
-        required: ["params"],
-        properties: {
-          params: {
-            type: "object",
-            required: ["productId"],
-            properties: {
-              productId: { type: "string", pattern: "[0-9]+" },
-            },
-          },
-        },
-      }),
-      productKnexRepository,
-    ),
-  ),
-);
+export const findPeople = adapt(makeFindPersonController());
+export const findOnePerson = adapt(makeFindOnePersonController());
+export const createPerson = adapt(makeCreatePersonController());
+export const updatePerson = adapt(makeUpdatePersonController());
 
-export const createProduct: APIGatewayProxyHandlerV2 = adapt(
-  auth(
-    new CreateProductController(
-      new AjvValidationAdapter<CreateProductRequest>({
-        type: "object",
-        required: ["body"],
-        properties: {
-          body: {
-            type: "object",
-            required: ["name", "value"],
-            properties: {
-              name: { type: "string", minLength: 1, maxLength: 48 },
-              value: { type: "integer", minimum: 1, maximum: 99999 },
-            },
-          },
-        },
-      }),
-      productKnexRepository,
-    ),
-  ),
-);
-
-export const updateProduct: APIGatewayProxyHandlerV2 = adapt(
-  auth(
-    new UpdateProductController(
-      new AjvValidationAdapter<UpdateProductRequest>({
-        type: "object",
-        required: ["params", "body"],
-        properties: {
-          params: {
-            type: "object",
-            required: ["productId"],
-            properties: {
-              productId: { type: "string", pattern: "[0-9]+" },
-            },
-          },
-          body: {
-            type: "object",
-            required: ["name", "value"],
-            properties: {
-              name: { type: "string", minLength: 1, maxLength: 48 },
-              value: { type: "integer", minimum: 1, maximum: 99999 },
-            },
-          },
-        },
-      }),
-      productKnexRepository,
-    ),
-  ),
-);
-
-export const findTeams: APIGatewayProxyHandlerV2 = adapt(
-  auth(
-    new FindTeamController(
-      new AjvValidationAdapter<FindTeamRequest>({
-        type: "object",
-        required: ["query"],
-        properties: {
-          query: {
-            type: "object",
-            properties: {
-              name: { type: "string", maxLength: 24, nullable: true },
-            },
-          },
-        },
-      }),
-      teamKnexRepository,
-    ),
-  ),
-);
-
-export const findOneTeam: APIGatewayProxyHandlerV2 = adapt(
-  auth(
-    new FindOneTeamController(
-      new AjvValidationAdapter<FindOneTeamRequest>({
-        type: "object",
-        required: ["params"],
-        properties: {
-          params: {
-            type: "object",
-            required: ["teamId"],
-            properties: {
-              teamId: { type: "string", pattern: "[0-9]+" },
-            },
-          },
-        },
-      }),
-      teamKnexRepository,
-    ),
-  ),
-);
-
-export const createTeam: APIGatewayProxyHandlerV2 = adapt(
-  auth(
-    new CreateTeamController(
-      new AjvValidationAdapter<CreateTeamRequest>({
-        type: "object",
-        required: ["body"],
-        properties: {
-          body: {
-            type: "object",
-            required: ["name"],
-            properties: {
-              name: { type: "string", minLength: 1, maxLength: 24 },
-            },
-          },
-        },
-      }),
-      teamKnexRepository,
-    ),
-  ),
-);
-
-export const updateTeam: APIGatewayProxyHandlerV2 = adapt(
-  auth(
-    new UpdateTeamController(
-      new AjvValidationAdapter<UpdateTeamRequest>({
-        type: "object",
-        required: ["params", "body"],
-        properties: {
-          params: {
-            type: "object",
-            required: ["teamId"],
-            properties: {
-              teamId: { type: "string", pattern: "[0-9]+" },
-            },
-          },
-          body: {
-            type: "object",
-            required: ["name"],
-            properties: {
-              name: { type: "string", minLength: 1, maxLength: 24 },
-            },
-          },
-        },
-      }),
-      teamKnexRepository,
-    ),
-  ),
-);
-
-export const findPeople: APIGatewayProxyHandlerV2 = adapt(
-  auth(
-    new FindPersonController(
-      new AjvValidationAdapter<FindPersonRequest>({
-        type: "object",
-        required: ["query"],
-        properties: {
-          query: {
-            type: "object",
-            properties: {
-              name: { type: "string", maxLength: 24, nullable: true },
-              teamId: { type: "string", pattern: "[0-9]+", nullable: true },
-            },
-          },
-        },
-      }),
-      personKnexRepository,
-      personKnexRepository,
-    ),
-  ),
-);
-
-export const findOnePerson: APIGatewayProxyHandlerV2 = adapt(
-  auth(
-    new FindOnePersonController(
-      new AjvValidationAdapter<FindOnePersonRequest>({
-        type: "object",
-        required: ["params"],
-        properties: {
-          params: {
-            type: "object",
-            required: ["personId"],
-            properties: {
-              personId: { type: "string", pattern: "[0-9]+" },
-            },
-          },
-        },
-      }),
-      personKnexRepository,
-    ),
-  ),
-);
-
-export const createPerson: APIGatewayProxyHandlerV2 = adapt(
-  auth(
-    new CreatePersonController(
-      new AjvValidationAdapter<CreatePersonRequest>({
-        type: "object",
-        required: ["body"],
-        properties: {
-          body: {
-            type: "object",
-            required: ["name", "teamId"],
-            properties: {
-              name: { type: "string", minLength: 1, maxLength: 24 },
-              teamId: { type: "integer", minimum: 1 },
-            },
-          },
-        },
-      }),
-      teamKnexRepository,
-      personKnexRepository,
-    ),
-  ),
-);
-
-export const updatePerson: APIGatewayProxyHandlerV2 = adapt(
-  auth(
-    new UpdatePersonController(
-      new AjvValidationAdapter<UpdatePersonRequest>({
-        type: "object",
-        required: ["params", "body"],
-        properties: {
-          params: {
-            type: "object",
-            required: ["personId"],
-            properties: {
-              personId: { type: "string", pattern: "[0-9]+" },
-            },
-          },
-          body: {
-            type: "object",
-            required: ["name", "teamId"],
-            properties: {
-              name: { type: "string", minLength: 1, maxLength: 24 },
-              teamId: { type: "integer", minimum: 1 },
-            },
-          },
-        },
-      }),
-      teamKnexRepository,
-      personKnexRepository,
-    ),
-  ),
-);
-
-export const findInvoices: APIGatewayProxyHandlerV2 = adapt(
-  auth(
-    new FindInvoiceController(
-      new AjvValidationAdapter<FindInvoiceRequest>({
-        type: "object",
-        required: ["query"],
-        properties: {
-          query: {
-            type: "object",
-            properties: {
-              teamId: { type: "string", pattern: "[0-9]+", nullable: true },
-              personId: { type: "string", pattern: "[0-9]+", nullable: true },
-              paid: { type: "string", pattern: "true|false", nullable: true },
-            },
-          },
-        },
-      }),
-      invoiceKnexRepository,
-      invoiceKnexRepository,
-      invoiceKnexRepository,
-      invoiceKnexRepository,
-      invoiceKnexRepository,
-      invoiceKnexRepository,
-      invoiceKnexRepository,
-      invoiceKnexRepository,
-    ),
-  ),
-);
-
-export const findOneInvoice: APIGatewayProxyHandlerV2 = adapt(
-  auth(
-    new FindOneInvoiceController(
-      new AjvValidationAdapter<FindOneInvoiceRequest>({
-        type: "object",
-        required: ["params"],
-        properties: {
-          params: {
-            type: "object",
-            required: ["invoiceId"],
-            properties: {
-              invoiceId: { type: "string", pattern: "[0-9]+" },
-            },
-          },
-        },
-      }),
-      invoiceKnexRepository,
-    ),
-  ),
-);
-
-export const createInvoice: APIGatewayProxyHandlerV2 = adapt(
-  auth(
-    new CreateInvoiceController(
-      new AjvValidationAdapter<CreateInvoiceRequest>({
-        type: "object",
-        required: ["body"],
-        properties: {
-          body: {
-            type: "object",
-            required: ["personId", "products"],
-            properties: {
-              personId: { type: "integer", minimum: 1 },
-              products: {
-                type: "array",
-                minItems: 1,
-                items: {
-                  type: "object",
-                  required: ["name", "value"],
-                  properties: {
-                    name: { type: "string", minLength: 1, maxLength: 48 },
-                    value: { type: "integer", minimum: 1, maximum: 99999 },
-                  },
-                },
-              },
-            },
-          },
-        },
-      }),
-      personKnexRepository,
-      invoiceKnexRepository,
-    ),
-  ),
-);
-
-export const payInvoice: APIGatewayProxyHandlerV2 = adapt(
-  auth(
-    new PayInvoiceController(
-      new AjvValidationAdapter<PayInvoiceRequest>({
-        type: "object",
-        required: ["params"],
-        properties: {
-          params: {
-            type: "object",
-            required: ["invoiceId"],
-            properties: {
-              invoiceId: { type: "string", pattern: "[0-9]+" },
-            },
-          },
-        },
-      }),
-      invoiceKnexRepository,
-      invoiceKnexRepository,
-    ),
-  ),
-);
+export const findInvoices = adapt(makeFindInvoiceController());
+export const findOneInvoice = adapt(makeFindOneInvoiceController());
+export const createInvoice = adapt(makeCreateInvoiceController());
+export const payInvoice = adapt(makePayInvoiceController());

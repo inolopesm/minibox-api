@@ -1,11 +1,5 @@
-import type {
-  Controller,
-  Request,
-  Response,
-  Validation,
-} from "../../protocols";
-
-import type { CreateTeamRepository } from "../../repositories";
+import { Controller, Request, Response, Validation } from "../../protocols";
+import { CreateTeamRepository } from "../../repositories";
 
 export interface CreateTeamRequest {
   body: { name: string };

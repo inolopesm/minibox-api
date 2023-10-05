@@ -1,19 +1,19 @@
-import type { Product } from "../entities/product";
+import { Product } from "../entities/product";
 
 export interface FindLikeNameProductRepository {
-  findLikeName: (name: string) => Promise<Product[]>;
+  findLikeName(name: string): Promise<Product[]>;
 }
 
 export interface CreateProductRepository {
-  create: (name: string, value: number) => Promise<void>;
+  create(name: string, value: number): Promise<void>;
 }
 
 export interface FindOneByIdProductRepository {
-  findOneById: (id: number) => Promise<Product | null>;
+  findOneById(id: number): Promise<Product | null>;
 }
 
 export interface UpdateNameAndValueByIdProductRepository {
-  updateNameAndValueById: ({
+  updateNameAndValueById({
     name,
     value,
     id,
@@ -21,5 +21,5 @@ export interface UpdateNameAndValueByIdProductRepository {
     name: string;
     value: number;
     id: number;
-  }) => Promise<void>;
+  }): Promise<void>;
 }

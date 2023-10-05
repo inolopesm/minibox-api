@@ -37,6 +37,18 @@ O `minibox-api` é o lado backend do [minibox](https://github.com/inolopesm/mini
 1. Crie o domínio customizado: `npm run sls:create_domain`
 2. Faça o deploy: `npm run sls:deploy:production`
 
+## Testes
+
+### Testes unitários
+
+Execute o comando: `npm run test:unit`
+
+### Testes de integração
+
+1. Instale o [Docker](https://www.docker.com/) v24
+2. Altere a variável `POSTGRES_URL` no `.env` para o valor `postgres://postgres:docker@db:5432/minibox`
+3. Execute o comando: `npm run test:integration`
+
 ## Licença
 
 Este projeto está sob a licença [GPL-3.0](./LICENSE)

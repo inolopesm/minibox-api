@@ -3,7 +3,7 @@ import {
   APIGatewayProxyStructuredResultV2,
 } from "aws-lambda";
 
-import { Controller, Request } from "../../application/protocols";
+import { Controller, Request, Response } from "../../application/protocols";
 import { removeUndefined } from "../utils";
 
 export function adapt(controller: Controller) {
@@ -17,16 +17,30 @@ export function adapt(controller: Controller) {
       body: event.body !== undefined ? JSON.parse(event.body) : {},
     };
 
-    const response = await controller.handle(request);
+    const response = await controller
+      .handle(request)
+      .catch(({ name, message, stack }): Response => {
+        console.error({ name, message, stack });
+
+        return {
+          statusCode: 500,
+          body: { message: "Ocorreu um erro inesperado" },
+        };
+      });
+
+    if (response.body === undefined) {
+      return { statusCode: response.statusCode };
+    }
+
+    const body = JSON.stringify(response.body);
 
     return {
       statusCode: response.statusCode,
-      ...(response.body !== undefined
-        ? {
-            headers: { "content-type": "application/json" },
-            body: JSON.stringify(response.body),
-          }
-        : {}),
+      headers: {
+        "content-type": "application/json",
+        "content-length": Buffer.byteLength(body, "utf-8"),
+      },
+      body,
     };
   };
 }

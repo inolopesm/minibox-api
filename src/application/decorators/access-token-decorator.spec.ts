@@ -1,28 +1,11 @@
-import { Controller, Request, Response, Validation } from "../protocols";
+import { randomUUID } from "node:crypto";
+import { ControllerSpy } from "../controllers/controller.mock";
+import { Request, Response } from "../protocols";
 import { Jwt } from "../utils";
+import { ValidationSpy } from "../validations/validation.mock";
 import { AccessTokenDecorator } from "./access-token-decorator";
 
-const SECRET = Math.random().toString(36).substring(2);
-
-class ControllerSpy implements Controller {
-  request?: Request;
-  response: Response = { statusCode: 200, body: { number: Math.random() } };
-
-  async handle(request: Request): Promise<Response> {
-    this.request = request;
-    return this.response;
-  }
-}
-
-class ValidationSpy implements Validation {
-  input?: unknown;
-  result: Error | null = null;
-
-  validate(input: unknown): Error | null {
-    this.input = input;
-    return this.result;
-  }
-}
+const SECRET = randomUUID();
 
 describe("AccessTokenDecorator", () => {
   let accessToken: string;

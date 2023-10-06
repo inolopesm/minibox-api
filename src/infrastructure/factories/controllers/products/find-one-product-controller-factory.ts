@@ -6,25 +6,31 @@ import {
 import { Controller } from "../../../../application/protocols";
 import { AjvValidationAdapter } from "../../../adapters";
 import { ProductKnexRepository } from "../../../repositories";
-import { makeAccessTokenDecorator } from "../../decorators";
+
+import {
+  makeAccessTokenDecorator,
+  makeLogErrorDecorator,
+} from "../../decorators";
 
 export function makeFindOneProductController(): Controller {
-  return makeAccessTokenDecorator(
-    new FindOneProductController(
-      new AjvValidationAdapter<FindOneProductRequest>({
-        type: "object",
-        required: ["params"],
-        properties: {
-          params: {
-            type: "object",
-            required: ["productId"],
-            properties: {
-              productId: { type: "string", pattern: "[0-9]+" },
+  return makeLogErrorDecorator(
+    makeAccessTokenDecorator(
+      new FindOneProductController(
+        new AjvValidationAdapter<FindOneProductRequest>({
+          type: "object",
+          required: ["params"],
+          properties: {
+            params: {
+              type: "object",
+              required: ["productId"],
+              properties: {
+                productId: { type: "string", pattern: "[0-9]+" },
+              },
             },
           },
-        },
-      }),
-      new ProductKnexRepository(), // FindOneByIdProductRepository
+        }),
+        new ProductKnexRepository(), // FindOneByIdProductRepository
+      ),
     ),
   );
 }

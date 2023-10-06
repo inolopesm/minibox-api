@@ -6,25 +6,31 @@ import {
 import { Controller } from "../../../../application/protocols";
 import { AjvValidationAdapter } from "../../../adapters";
 import { TeamKnexRepository } from "../../../repositories";
-import { makeAccessTokenDecorator } from "../../decorators";
+
+import {
+  makeAccessTokenDecorator,
+  makeLogErrorDecorator,
+} from "../../decorators";
 
 export function makeFindOneTeamController(): Controller {
-  return makeAccessTokenDecorator(
-    new FindOneTeamController(
-      new AjvValidationAdapter<FindOneTeamRequest>({
-        type: "object",
-        required: ["params"],
-        properties: {
-          params: {
-            type: "object",
-            required: ["teamId"],
-            properties: {
-              teamId: { type: "string", pattern: "[0-9]+" },
+  return makeLogErrorDecorator(
+    makeAccessTokenDecorator(
+      new FindOneTeamController(
+        new AjvValidationAdapter<FindOneTeamRequest>({
+          type: "object",
+          required: ["params"],
+          properties: {
+            params: {
+              type: "object",
+              required: ["teamId"],
+              properties: {
+                teamId: { type: "string", pattern: "[0-9]+" },
+              },
             },
           },
-        },
-      }),
-      new TeamKnexRepository(), // FindOneByIdTeamRepository
+        }),
+        new TeamKnexRepository(), // FindOneByIdTeamRepository
+      ),
     ),
   );
 }

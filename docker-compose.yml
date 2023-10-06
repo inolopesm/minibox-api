@@ -5,10 +5,11 @@ services:
       - POSTGRES_PASSWORD=docker
       - POSTGRES_DB=minibox
     healthcheck:
-      test: pg_isready -U postgres
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
       interval: 5s
       timeout: 5s
-      retries: 5
+      retries: 20
+      start_period: 10s
   app:
     build: .
     command: sh -c "npm run knex -- migrate:latest && npm run sls:offline"
@@ -22,4 +23,4 @@ services:
       db:
         condition: service_healthy
     healthcheck:
-      test: curl --fail http://app:3000 || exit 1
+      test: ["CMD-SHELL", "curl --fail http://app:3000 || exit 1"]

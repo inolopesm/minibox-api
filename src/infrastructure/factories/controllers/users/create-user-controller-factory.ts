@@ -33,7 +33,7 @@ export function makeCreateUserController(): Controller {
                 maxLength: 24,
                 pattern: "^[a-zA-Z0-9-_.]+$",
               },
-              password: { type: "string", minLength: 1, maxLength: 24 },
+              password: { type: "string", minLength: 8, maxLength: 24 },
             },
           },
         },

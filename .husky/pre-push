@@ -3,5 +3,6 @@
 
 npm run lint
 npx prettier src/**/*.ts --check
+npx tsc --noEmit
 npm run test:unit -- --ci --coverage --reporters=summary
 npm run test:integration
